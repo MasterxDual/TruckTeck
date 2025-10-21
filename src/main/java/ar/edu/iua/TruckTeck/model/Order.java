@@ -15,11 +15,13 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
 @AllArgsConstructor
+@NoArgsConstructor
 @Entity
 @Table(name = "orders")
 public class Order {
@@ -28,21 +30,23 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long number; // Número de orden (PK)
 
+    private String activationCode;      // Código de 5 dígitos (se genera al registrar tara)
+
     // ======== Relaciones con otras Entidades ========
     @ManyToOne
-    @JoinColumn(name = "driver", nullable = false)
+    @JoinColumn(name = "driver_id", nullable = false)
     private Driver driver;
 
     @ManyToOne
-    @JoinColumn(name = "client", nullable = false)
+    @JoinColumn(name = "client_id", nullable = false)
     private Client client;
 
     @ManyToOne
-    @JoinColumn(name = "product", nullable = false)
+    @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
     @ManyToOne
-    @JoinColumn(name = "truck", nullable = false)
+    @JoinColumn(name = "truck_id", nullable = false)
     private Truck truck;
 
     // ======= Datos base ========
