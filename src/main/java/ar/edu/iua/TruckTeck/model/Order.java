@@ -30,6 +30,7 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long number; // Número de orden (PK)
 
+    // ===== Integracion con sistemas externos mediante la logica del cliente =====
     private String externalCode;        // Campo para contemplar los codigos externos del SAP por ejemplo
     private String activationCode;      // Código de 5 dígitos (se genera al registrar tara)
 
@@ -76,12 +77,4 @@ public class Order {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private OrderState state = OrderState.PENDING; // Estado inicial de la orden por defecto
-    /**
-     * Caso contrario para no usar un estado por defecto, se puede crear el objeto sin declarar:
-     *
-     * @Schema(hidden = true)
-     * @Enumerated(EnumType.STRING)
-     * @Column()
-     * private OrderState status;
-     */
 }
