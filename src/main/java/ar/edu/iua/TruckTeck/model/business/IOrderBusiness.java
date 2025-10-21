@@ -1,7 +1,6 @@
 package ar.edu.iua.TruckTeck.model.business;
 
 import java.util.List;
-
 import ar.edu.iua.TruckTeck.model.Order;
 import ar.edu.iua.TruckTeck.model.business.exceptions.BusinessException;
 import ar.edu.iua.TruckTeck.model.business.exceptions.FoundException;
@@ -65,4 +64,14 @@ public interface IOrderBusiness {
      * @throws NotFoundException Si la orden a eliminar no existe.
      */
     public void delete(Long id) throws BusinessException, NotFoundException;
+
+    // public Integer registerTare(long orderNumber, float tareWeight) throws BusinessException, NotFoundException;
+    
+    // public void addDetail(long orderNumber, OrderDetail detail) throws BusinessException, NotFoundException;
+    
+    // public void closeOrder(long orderNumber) throws BusinessException, NotFoundException;
+    
+    // public Map<String, Object> finalizeOrderAndReconcile(long orderNumber, float finalWeight) throws BusinessException, NotFoundException;
+    
+    // public Map<String, Object> getReconciliation(long orderNumber) throws BusinessException, NotFoundException;
 }

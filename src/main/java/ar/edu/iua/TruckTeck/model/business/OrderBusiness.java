@@ -5,7 +5,6 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import ar.edu.iua.TruckTeck.model.Client;
 import ar.edu.iua.TruckTeck.model.Driver;
 import ar.edu.iua.TruckTeck.model.Order;
@@ -236,5 +235,4 @@ public class OrderBusiness implements IOrderBusiness {
             throw BusinessException.builder().ex(e).build();
         }
     }
-    
 }
