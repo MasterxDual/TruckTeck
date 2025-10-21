@@ -52,6 +52,12 @@ public class Constants {
     public static final String URL_CLIENTS = URL_BASE + "/clients";
 
     /**
+     * URL del endpoint de ordenes.
+     * Construida a partir de {@link #URL_BASE} y la ruta específica "/orders".
+     */
+    public static final String URL_ORDERS = URL_BASE + "/orders";
+
+    /**
     * URL del endpoint de integración.
     * Construida a partir de {@link #URL_BASE} y la ruta específica "/integration".
     */

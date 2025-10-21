@@ -14,24 +14,23 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import ar.edu.iua.TruckTeck.model.Client;
-import ar.edu.iua.TruckTeck.model.business.IClientBusiness;
+import ar.edu.iua.TruckTeck.model.Order;
+import ar.edu.iua.TruckTeck.model.business.IOrderBusiness;
 import ar.edu.iua.TruckTeck.model.business.exceptions.BusinessException;
 import ar.edu.iua.TruckTeck.model.business.exceptions.FoundException;
 import ar.edu.iua.TruckTeck.model.business.exceptions.NotFoundException;
 import ar.edu.iua.TruckTeck.util.IStandardResponseBusiness;
 
 /**
- * Controlador REST para la gestión de clientes.
+ * Controlador REST para la gestión de órdenes.
  * <p>
- * Proporciona endpoints para listar y agregar clientes mediante solicitudes HTTP.
- * Utiliza las rutas definidas en {@link Constants#URL_clientS}.
+ * Proporciona endpoints para listar y agregar órdenes mediante solicitudes HTTP.
+ * Utiliza las rutas definidas en {@link Constants#URL_ORDERS}.
  * </p>
  */
 @RestController
-@RequestMapping(Constants.URL_CLIENTS)
-public class ClientRestController {
-
+@RequestMapping(Constants.URL_ORDERS)
+public class OrderRestController {
     /**
      * Componente de negocio encargado de construir respuestas estándar.
      */
@@ -42,22 +41,22 @@ public class ClientRestController {
      * Componente de negocio encargado de la lógica de productos.
      */
     @Autowired
-    private IClientBusiness clientBusiness;
+    private IOrderBusiness orderBusiness;
 
     /**
-     * Endpoint para obtener la lista de todos los clientes.
+     * Endpoint para obtener la lista de todas las órdenes.
      * <p>
-     * Responde a solicitudes HTTP GET y devuelve los clientes en formato JSON.
+     * Responde a solicitudes HTTP GET y devuelve las órdenes en formato JSON.
      * </p>
      *
-     * @return ResponseEntity que contiene la lista de clientes y el código HTTP correspondiente.
+     * @return ResponseEntity que contiene la lista de órdenes y el código HTTP correspondiente.
      *         - {@link HttpStatus#OK} si la operación fue exitosa.
      *         - {@link HttpStatus#INTERNAL_SERVER_ERROR} si ocurre un {@link BusinessException}.
      */
     @GetMapping(value = "", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> list() {
         try {
-            return new ResponseEntity<>(clientBusiness.list(), HttpStatus.OK);
+            return new ResponseEntity<>(orderBusiness.list(), HttpStatus.OK);
         } catch(BusinessException e) {
             return new ResponseEntity<>(response.build(HttpStatus.INTERNAL_SERVER_ERROR, e, e.getMessage()),
              HttpStatus.INTERNAL_SERVER_ERROR);
@@ -65,24 +64,24 @@ public class ClientRestController {
     }
 
     /**
-     * Endpoint para agregar un nuevo cliente.
+     * Endpoint para agregar una nueva orden.
      * <p>
-     * Responde a solicitudes HTTP POST con un objeto {@link client} en el cuerpo de la solicitud.
+     * Responde a solicitudes HTTP POST con un objeto {@link Order} en el cuerpo de la solicitud.
      * Devuelve la ubicación del nuevo recurso en el encabezado HTTP 'Location'.
      * </p>
      *
-     * @param client El cliente a agregar.
+     * @param order La orden a agregar.
      * @return ResponseEntity que indica el resultado de la operación.
-     *         - {@link HttpStatus#CREATED} si el cliente se creó correctamente.
-     *         - {@link HttpStatus#FOUND} si ya existe un cliente similar ({@link FoundException}).
+     *         - {@link HttpStatus#CREATED} si la orden se creó correctamente.
+     *         - {@link HttpStatus#FOUND} si ya existe una orden similar ({@link FoundException}).
      *         - {@link HttpStatus#INTERNAL_SERVER_ERROR} si ocurre un {@link BusinessException}.
      */
     @PostMapping(value = "")
-    public ResponseEntity<?> add(@RequestBody Client client) {
+    public ResponseEntity<?> add(@RequestBody Order order) {
         try {
-            Client response = clientBusiness.add(client);
+            Order response = orderBusiness.add(order);
             HttpHeaders responseHeaders = new HttpHeaders();
-            responseHeaders.set("location", Constants.URL_CLIENTS + "/" + response.getId());
+            responseHeaders.set("location", Constants.URL_ORDERS + "/" + response.getNumber());
             return new ResponseEntity<>(responseHeaders, HttpStatus.CREATED);
         } catch(BusinessException e) {
             return new ResponseEntity<>(response.build(HttpStatus.INTERNAL_SERVER_ERROR, e, e.getMessage()),
@@ -93,36 +92,17 @@ public class ClientRestController {
     }
 
     /**
-     * Obtiene un cliente por su identificador único.
+     * Obtiene una orden por su identificador único.
      *
-     * @param id Identificador numérico del cliente a buscar.
-     * @return Un {@link ResponseEntity} que contiene el cliente encontrado (HTTP 200 OK),
+     * @param id Identificador numérico de la orden a buscar.
+     * @return Un {@link ResponseEntity} que contiene la orden encontrada (HTTP 200 OK),
      *         o un mensaje de error si ocurre una excepción de negocio (HTTP 500)
-     *         o si no se encuentra el cliente (HTTP 404).
+     *         o si no se encuentra la orden (HTTP 404).
      */
     @GetMapping(value = "/{id}")
     public ResponseEntity<?> load(@PathVariable long id) {
         try {
-            return new ResponseEntity<>(clientBusiness.load(id), HttpStatus.OK);
-        } catch(BusinessException e) {
-            return new ResponseEntity<>(response.build(HttpStatus.INTERNAL_SERVER_ERROR, e, e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
-        } catch(NotFoundException e) {
-            return new ResponseEntity<>(response.build(HttpStatus.NOT_FOUND, e, e.getMessage()), HttpStatus.NOT_FOUND);
-        }
-    }
-    
-     /**
-     * Obtiene un cliente por su numero de documento.
-     *
-     * @param companyName nombre del cliente a buscar.
-     * @return Un {@link ResponseEntity} que contiene el cliente encontrado (HTTP 200 OK),
-     *         o un mensaje de error si ocurre una excepción de negocio (HTTP 500)
-     *         o si no se encuentra el cliente (HTTP 404).
-     */
-    @GetMapping(value = "/by-companyName/{companyName}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> load(@PathVariable String companyName) {
-        try {
-            return new ResponseEntity<>(clientBusiness.load(companyName), HttpStatus.OK);
+            return new ResponseEntity<>(orderBusiness.load(id), HttpStatus.OK);
         } catch(BusinessException e) {
             return new ResponseEntity<>(response.build(HttpStatus.INTERNAL_SERVER_ERROR, e, e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         } catch(NotFoundException e) {
@@ -131,18 +111,18 @@ public class ClientRestController {
     }
 
     /**
-     * Actualiza un cliente existente con los datos proporcionados.
+     * Actualiza una orden existente con los datos proporcionados.
      *
-     * @param client Objeto {@link Client} con los datos actualizados del cliente.
+     * @param order Objeto {@link Order} con los datos actualizados de la orden.
      * @return Un {@link ResponseEntity} con estado HTTP 200 si la actualización es exitosa,
      *         o un mensaje de error si ocurre una excepción de negocio (HTTP 500)
-     *         o si el cliente no existe (HTTP 404)
-     *         o si el cliente existe (HTTP 302).
+     *         o si la orden no existe (HTTP 404)
+     *         o si la orden ya existe (HTTP 302).
      */
     @PutMapping(value = "")
-    public ResponseEntity<?> update(@RequestBody Client client) {
+    public ResponseEntity<?> update(@RequestBody Order order) {
         try {
-            clientBusiness.update(client);
+            orderBusiness.update(order);
             return new ResponseEntity<>(HttpStatus.OK);
         } catch(BusinessException e) {
             return new ResponseEntity<>(response.build(HttpStatus.INTERNAL_SERVER_ERROR, e, e.getMessage()),
@@ -155,17 +135,17 @@ public class ClientRestController {
     }
 
     /**
-     * Elimina un cliente existente según su identificador.
+     * Elimina una orden existente según su identificador.
      *
-     * @param id Identificador numérico del cliente a eliminar.
+     * @param id Identificador numérico de la orden a eliminar.
      * @return Un {@link ResponseEntity} con estado HTTP 200 si la eliminación es exitosa,
      *         o un mensaje de error si ocurre una excepción de negocio (HTTP 500)
-     *         o si el cliente no existe (HTTP 404).
+     *         o si la orden no existe (HTTP 404).
      */
     @DeleteMapping(value = "/{id}")
     public ResponseEntity<?> delete(@PathVariable long id) {
         try {
-            clientBusiness.delete(id);
+            orderBusiness.delete(id);
             return new ResponseEntity<String>(HttpStatus.OK);
         } catch(BusinessException e) {
             return new ResponseEntity<>(response.build(HttpStatus.INTERNAL_SERVER_ERROR, e, e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -173,6 +153,10 @@ public class ClientRestController {
             return new ResponseEntity<>(response.build(HttpStatus.NOT_FOUND, e, e.getMessage()), HttpStatus.NOT_FOUND);
         }
     }
-    
+
 }
+
+    
+
+
 
