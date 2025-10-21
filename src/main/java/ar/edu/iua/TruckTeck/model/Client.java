@@ -1,5 +1,6 @@
 package ar.edu.iua.TruckTeck.model;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -17,6 +18,7 @@ import lombok.Setter;
 @Entity
 @Table(name = "clients")
 public class Client {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
@@ -24,4 +26,7 @@ public class Client {
     private String companyName;
 
     private String contactName;
+
+    @Column(unique = true, nullable = false)
+    private String externalCode; // Codigo de SAP para este cliente
 }

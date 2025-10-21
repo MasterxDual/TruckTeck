@@ -30,6 +30,7 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long number; // Número de orden (PK)
 
+    private String externalCode;        // Campo para contemplar los codigos externos del SAP por ejemplo
     private String activationCode;      // Código de 5 dígitos (se genera al registrar tara)
 
     // ======== Relaciones con otras Entidades ========
