@@ -81,7 +81,7 @@ public class OrderRestController {
         try {
             Order response = orderBusiness.add(order);
             HttpHeaders responseHeaders = new HttpHeaders();
-            responseHeaders.set("location", Constants.URL_ORDERS + "/" + response.getNumber());
+            responseHeaders.set("location", Constants.URL_ORDERS + "/" + response.getId());
             return new ResponseEntity<>(responseHeaders, HttpStatus.CREATED);
         } catch(BusinessException e) {
             return new ResponseEntity<>(response.build(HttpStatus.INTERNAL_SERVER_ERROR, e, e.getMessage()),
@@ -109,6 +109,26 @@ public class OrderRestController {
             return new ResponseEntity<>(response.build(HttpStatus.NOT_FOUND, e, e.getMessage()), HttpStatus.NOT_FOUND);
         }
     }
+
+     /**
+     * Obtiene una orden por su número de orden.
+     *
+     * @param number Número de la orden a buscar.
+     * @return Un {@link ResponseEntity} que contiene la orden encontrada (HTTP 200 OK),
+     *         o un mensaje de error si ocurre una excepción de negocio (HTTP 500)
+     *         o si no se encuentra la orden (HTTP 404).
+     */
+    @GetMapping(value = "/number/{number}")
+    public ResponseEntity<?> load(@PathVariable String number) {
+        try {
+            return new ResponseEntity<>(orderBusiness.load(number), HttpStatus.OK);
+        } catch(BusinessException e) {
+            return new ResponseEntity<>(response.build(HttpStatus.INTERNAL_SERVER_ERROR, e, e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch(NotFoundException e) {
+            return new ResponseEntity<>(response.build(HttpStatus.NOT_FOUND, e, e.getMessage()), HttpStatus.NOT_FOUND);
+        }
+    }
+
 
     /**
      * Actualiza una orden existente con los datos proporcionados.

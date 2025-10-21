@@ -28,7 +28,9 @@ public class Order {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long number; // Número de orden (PK)
+    private long id; // Clave primaria
+
+    private String number; // Número de orden
 
     // ===== Integracion con sistemas externos mediante la logica del cliente =====
     @Column(unique = true, nullable = true)

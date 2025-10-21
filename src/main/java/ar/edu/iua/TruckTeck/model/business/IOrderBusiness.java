@@ -27,6 +27,17 @@ public interface IOrderBusiness {
     public Order load(Long id) throws BusinessException, NotFoundException;
 
     /**
+    * Carga una orden específica a partir número de orden.
+    *
+    * @param number Número de la orden a cargar.
+    * @return orden correspondiente al número proporcionado.
+    * @throws BusinessException Si ocurre un error en la lógica de negocio.
+    * @throws NotFoundException  Si no se encuentra una orden con el número dado.
+    */
+    public Order load(String number) throws BusinessException, NotFoundException;
+
+
+    /**
      * Agrega una nueva orden al sistema.
      *
      * @param order orden a agregar.

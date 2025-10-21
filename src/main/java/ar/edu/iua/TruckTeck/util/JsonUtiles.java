@@ -9,6 +9,8 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
+import ar.edu.iua.TruckTeck.model.Driver;
+
 /**
  * Clase utilitaria para operaciones relacionadas con JSON,
  * facilitando la serialización, deserialización y extracción de valores
@@ -72,6 +74,58 @@ public final class JsonUtiles {
 		mapper.setDateFormat(df);
 		mapper.registerModule(module);
 		return mapper;
+	}
+
+	public static Driver getDriver(JsonNode node, String[] attrs, String defaultValue) {
+
+		if (node == null || node.isNull()) {
+			return null;
+		}
+
+		// Si el nodo es un número o texto numérico, interpretamos como id directo
+		if (node.isNumber()) {
+			Driver d = new Driver();
+			d.setId(node.asLong());
+			return d;
+		}
+
+		if (node.isTextual()) {
+			String t = node.asText();
+			if (t != null && t.matches("\\d+")) {
+				Driver d = new Driver();
+				try {
+					d.setId(Long.parseLong(t));
+				} catch (NumberFormatException e) {
+					// ignore
+				}
+				return d;
+			}
+		}
+
+		Driver d = new Driver();
+
+		// id puede venir como "id" o "driverId" o similar dentro del objeto
+		String idStr = getString(node, new String[] { "id", "driverId", "driver_id" }, null);
+		if (idStr != null && !idStr.isEmpty()) {
+			try {
+				d.setId(Long.parseLong(idStr));
+			} catch (NumberFormatException e) {
+				// ignorar, dejamos id en 0
+			}
+		}
+
+		// Nombre y apellido
+		d.setName(getString(node, new String[] { "name", "nombre", "firstName" }, defaultValue));
+		d.setSurname(getString(node, new String[] { "surname", "apellido", "lastName" }, ""));
+
+		// Documento
+		d.setDocumentNumber(getString(node, new String[] { "documentNumber", "document_number", "dni", "doc" }, ""));
+
+		// Código externo (SAP)
+		d.setExternalCode(getString(node, new String[] { "externalCode", "external_code", "codigo", "code" }, null));
+
+		return d;
+
 	}
 
 	/**
