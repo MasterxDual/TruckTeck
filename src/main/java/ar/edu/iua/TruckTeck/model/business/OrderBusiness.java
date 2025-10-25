@@ -112,6 +112,30 @@ public class OrderBusiness implements IOrderBusiness {
     }
 
     /**
+     * Obtiene una orden por su número de orden.
+     *
+     * @param number Número de la orden.
+     * @return La {@link Order} correspondiente al número proporcionado.
+     * @throws BusinessException Si ocurre un error en la lógica de negocio o en el acceso a datos.
+     * @throws NotFoundException Si no se encuentra la orden con el número especificado.
+     */ 
+    @Override
+    public Order load(String number) throws BusinessException, NotFoundException {
+        Optional<Order> r;
+
+        try {
+            r = orderDAO.findByNumber(number);
+        } catch(Exception e) {
+            log.error(e.getMessage(), e);
+            throw BusinessException.builder().ex(e).build();
+        }
+        if(r.isEmpty()) {
+            throw NotFoundException.builder().message("No se encuentra la Orden con número: " + number).build();
+        }
+        return r.get();
+    }
+
+    /**
      * Agrega una nueva orden.
      * <p>
      * Antes de agregar, verifica que no exista otra orden con el mismo id o nombre.
@@ -125,8 +149,8 @@ public class OrderBusiness implements IOrderBusiness {
     @Override
     public Order add(Order order) throws BusinessException, FoundException {
         try {
-            load(order.getNumber());
-            throw FoundException.builder().message("Se encontró la orden con número: " + order.getNumber()).build();
+            load(order.getId());
+            throw FoundException.builder().message("Se encontró la orden con id: " + order.getId()).build();
         } catch(NotFoundException e) {
         }
 
@@ -203,7 +227,7 @@ public class OrderBusiness implements IOrderBusiness {
      */
     @Override
     public Order update(Order order) throws FoundException, BusinessException, NotFoundException {
-        load(order.getNumber());
+        load(order.getId());
 
         try {
             return orderDAO.save(order);
@@ -215,7 +239,7 @@ public class OrderBusiness implements IOrderBusiness {
 
     @Override
     public void delete(Order order) throws BusinessException, NotFoundException {
-        delete(order.getNumber());
+        delete(order.getId());
     }
 
     /**
