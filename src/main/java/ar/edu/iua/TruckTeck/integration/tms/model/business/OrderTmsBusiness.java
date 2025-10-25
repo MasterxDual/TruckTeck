@@ -285,7 +285,7 @@ public class OrderTmsBusiness implements IOrderTmsBusiness {
                                  String user, String observation) {
         try {
             OrderStatusLog statusLog = new OrderStatusLog();
-            statusLog.setOrderNumber(order.getNumber());
+            statusLog.setOrderNumber(order.getId());
             statusLog.setFromState(previousState);
             statusLog.setToState(newState);
             statusLog.setTimestamp(LocalDateTime.now());

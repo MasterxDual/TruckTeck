@@ -31,15 +31,6 @@ import ar.edu.iua.TruckTeck.model.enums.OrderState;
 public interface OrderRepository extends JpaRepository<Order, Long> {
 
     /**
-     * Busca una orden por su número (identificador primario).
-     * 
-     * @param number Número único de la orden
-     * @return Optional con la orden encontrada, o empty si no existe
-     */
-    @Query("SELECT o FROM Order o WHERE o.number = :number")
-    Optional<Order> findByNumber(long number);
-
-    /**
      * Busca una orden por el dominio del camión asociado y un estado específico.
      * <p>
      * <b>Uso principal:</b> Sistema TMS al registrar el pesaje inicial.
@@ -75,5 +66,21 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
      */
     @Query("SELECT o FROM Order o WHERE o.activationCode = :activationCode")
     Optional<Order> findByActivationCode(@Param("activationCode") String activationCode);
+
+    /**
+     * Busca una orden por su identificador único.
+     * 
+     * @param id Identificador único de la orden
+     * @return Optional con la orden si existe
+     */
+    @Query("SELECT o FROM Order o WHERE o.id = :id")
+    Optional<Order> findById(long id);
+
+    /**
+     * Busca una orden por su número de orden.
+     * @param number número de la orden
+     * @return Optional con la orden si existe
+     */
+    Optional<Order> findByNumber(String number);
 }
 
