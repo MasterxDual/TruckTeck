@@ -58,6 +58,13 @@ public class Constants {
     public static final String URL_ORDERS = URL_BASE + "/orders";
 
     /**
+     * URL del endpoint de integración TMS (Terminal Manager System - Balanza).
+     * Construida a partir de {@link #URL_BASE} y la ruta específica "/tms".
+     * Este endpoint es consumido por el sistema externo de balanza para registrar pesajes.
+     */
+    public static final String URL_TMS = URL_BASE + "/tms";
+
+    /**
      * URL del endpoint de ordenes sap.
      * Construida a partir de {@link #URL_BASE} y la ruta específica "/orders".
      */

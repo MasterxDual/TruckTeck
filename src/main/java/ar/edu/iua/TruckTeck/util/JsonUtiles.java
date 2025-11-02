@@ -4,17 +4,12 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.Locale;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-
-import ar.edu.iua.TruckTeck.model.Client;
 import ar.edu.iua.TruckTeck.model.Driver;
-import ar.edu.iua.TruckTeck.model.Product;
-import ar.edu.iua.TruckTeck.model.Truck;
 
 /**
  * Clase utilitaria para operaciones relacionadas con JSON,
