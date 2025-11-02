@@ -98,6 +98,8 @@ public class OrderBusinessCharging extends OrderBusiness implements IOrderBusine
             detail.setTimestamp(LocalDateTime.now());
             detail.setOrder(charge);
 
+            order.setEndLoading(LocalDateTime.now());
+
             if (order.getDensity() == null &&
                 order.getAccumulatedMass() == null &&
                 order.getTemperature() == null &&
@@ -110,24 +112,20 @@ public class OrderBusinessCharging extends OrderBusiness implements IOrderBusine
                 order.setCaudal(charge.getCaudal());
 
                 order.setStartLoading(LocalDateTime.now());
-                order.setEndLoading(LocalDateTime.now());
                 order.setState(OrderState.LOADING);
 
                 orderDetailDAO.save(detail);
                 return orderDAO.save(order);
             }
-            if(order.getAccumulatedMass()<detail.getAccumulatedMass() || order.getCaudal()<= 0){
+            if(order.getAccumulatedMass()<detail.getAccumulatedMass()){
                 throw BusinessException.builder().message("La masa acumulada contiene informacion erronea" + detail.getAccumulatedMass())
                    .build();
             }
             
             // Ya pasaron 10 segundos desde endLoading
-            if (Duration.between(order.getEndLoading(), LocalDateTime.now()).getSeconds() >= Constants.FREQUENCY) {
+            if (Duration.between(orderDetailDAO.findLastTimestampByOrderId(order.getId()), detail.getTimestamp()).getSeconds() >= Constants.FREQUENCY) {
                 orderDetailDAO.save(detail);
             }
-
-            order.setEndLoading(LocalDateTime.now());
-            return orderDAO.save(order);
 
 		} catch (JsonProcessingException e) {
 			log.error(e.getMessage(), e);
@@ -135,7 +133,7 @@ public class OrderBusinessCharging extends OrderBusiness implements IOrderBusine
 		} 
 
         // Aqui se guarda en la base de datos el producto deserializado
-		return order;
+		return  orderDAO.save(order);
 
     }
 

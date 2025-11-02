@@ -73,6 +73,8 @@ public class Constants {
 
     public static final String URL_ORDERS_CHARGING = URL_BASE + "/charging";
 
+    public static final long FREQUENCY = 10; // segundos
+
 
     /**
     * URL del endpoint de integración.
