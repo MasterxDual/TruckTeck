@@ -1,9 +1,6 @@
-
 package ar.edu.iua.TruckTeck.util;
 
 import org.springframework.http.HttpStatus;
-
-import com.hotels.road.rest.model.StandardResponse;
 
 /**
  * Interfaz que define el contrato para construir respuestas estándar de la API.
