@@ -68,19 +68,9 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     Optional<Order> findByActivationCode(@Param("activationCode") String activationCode);
 
     /**
-     * Busca una orden por su identificador único.
-     * 
-     * @param id Identificador único de la orden
-     * @return Optional con la orden si existe
-     */
-    @Query("SELECT o FROM Order o WHERE o.id = :id")
-    Optional<Order> findById(long id);
-
-    /**
      * Busca una orden por su número de orden.
      * @param number número de la orden
      * @return Optional con la orden si existe
      */
     Optional<Order> findByNumber(String number);
 }
-

@@ -22,14 +22,14 @@ public interface IOrderTmsBusiness {
      * La orden pasa al estado TARA_REGISTERED.
      * </p>
      * 
-     * @param domain Dominio/patente del camión (ej: "AB805")
+     * @param number numero de orden del camión
      * @param initialWeight Peso del camión vacío en kilogramos
      * @return La orden actualizada con el pesaje inicial registrado
      * @throws BusinessException Si ocurre un error en la lógica de negocio
      * @throws NotFoundException Si no se encuentra una orden pendiente para el camión
      * @throws FoundException Si la orden ya tiene un pesaje inicial registrado
      */
-    Order registerInitialWeighing(String domain, Double initialWeight) 
+    Order registerInitialWeighing(String number, Double initialWeight) 
         throws BusinessException, NotFoundException, FoundException;
 
     /**

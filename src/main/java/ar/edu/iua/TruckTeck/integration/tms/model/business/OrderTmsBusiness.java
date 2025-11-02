@@ -78,7 +78,7 @@ public class OrderTmsBusiness implements IOrderTmsBusiness {
      * 6. Cambia estado a TARA_REGISTERED
      * 7. Registra el cambio de estado en el log
      * 
-     * @param domain dominio del camión (ej: "ABC123")
+     * @param number dominio del camión (ej: "ABC123")
      * @param initialWeight peso del camión vacío (tara) en kg
      * @return Order actualizada con el pesaje inicial registrado
      * @throws BusinessException si ocurre un error en la lógica de negocio
@@ -86,19 +86,21 @@ public class OrderTmsBusiness implements IOrderTmsBusiness {
      * @throws FoundException si ya existe un código de activación duplicado (muy improbable)
      */
     @Override
-    public Order registerInitialWeighing(String domain, Double initialWeight) 
+    public Order registerInitialWeighing(String number, Double initialWeight) 
             throws BusinessException, NotFoundException, FoundException {
         
-        log.info("TMS: Registrando pesaje inicial para camión {} con peso {}", domain, initialWeight);
+        log.info("TMS: Registrando pesaje inicial para camión {} con peso {}", number, initialWeight);
         
         try {
             // 1. Buscar una orden pendiente para este camión por dominio
-            Optional<Order> orderOpt = orderRepository.findByTruckDomainAndState(domain, OrderState.PENDING);
+            // Optional<Order> orderOpt = orderRepository.findByTrucknumberAndState(number, OrderState.PENDING);
+            Optional<Order> orderOpt = orderRepository.findByNumber(number);
             if (orderOpt.isEmpty()) {
                 throw new NotFoundException(
-                    "No se encontró una orden pendiente de pesaje inicial para el camión: " + domain
+                    "No se encontró una orden pendiente de pesaje inicial para el camión: " + number
                 );
             }
+            // 2. Obtener la orden
             Order order = orderOpt.get();
             
             // 3. Validar que la orden esté en el estado correcto
@@ -111,16 +113,16 @@ public class OrderTmsBusiness implements IOrderTmsBusiness {
             // 4. Generar código de activación único de 5 dígitos
             String activationCode = generateActivationCode();
             
-            // Verificar que no exista (muy improbable, pero por seguridad)
-            int attempts = 0;
-            while (orderRepository.findByActivationCode(activationCode).isPresent() && attempts < 10) {
-                activationCode = generateActivationCode();
-                attempts++;
-            }
+            // // Verificar que no exista (muy improbable, pero por seguridad)
+            // int attempts = 0;
+            // while (orderRepository.findByActivationCode(activationCode).isPresent() && attempts < 10) {
+            //     activationCode = generateActivationCode();
+            //     attempts++;
+            // }
             
-            if (attempts >= 10) {
-                throw new BusinessException("No se pudo generar un código de activación único");
-            }
+            // if (attempts >= 10) {
+            //     throw new BusinessException("No se pudo generar un código de activación único");
+            // }
             
             // 5. Registrar datos del pesaje inicial
             order.setInitialWeight(initialWeight);
