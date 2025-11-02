@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import ar.edu.iua.TruckTeck.integration.sap.model.OrderSapJsonDeserializer;
+import ar.edu.iua.TruckTeck.integration.chargingsystem.model.OrderChargingJsonDeserializar;
 import ar.edu.iua.TruckTeck.model.Order;
 import ar.edu.iua.TruckTeck.model.OrderDetail;
 import ar.edu.iua.TruckTeck.model.business.IOrderBusiness;
@@ -46,12 +46,12 @@ public class OrderBusinessCharging extends OrderBusiness implements IOrderBusine
 
 
 
-    public Double getPreset(String number, String activationCode) throws BusinessException, NotFoundException{
+    public Double getPreset(String activationCode, String number) throws BusinessException, NotFoundException{
 
         Optional<Order> r;
 
         try {
-            r = orderDAO.findByActivationCode(number,activationCode);
+            r = orderDAO.findByActivationCode(activationCode,number);
         } catch(Exception e) {
             log.error(e.getMessage(), e);
             throw BusinessException.builder().ex(e).build();
@@ -66,7 +66,7 @@ public class OrderBusinessCharging extends OrderBusiness implements IOrderBusine
     public Order addExternalCharging(String json) throws BusinessException, EmptyFieldException, NotFoundException{
         
         ObjectMapper mapper = JsonUtiles.getObjectMapper(Order.class,
-				new OrderSapJsonDeserializer(Order.class),null);
+				new OrderChargingJsonDeserializar(Order.class),null);
 		Order charge = null;
         Order order = null;
         
@@ -89,16 +89,26 @@ public class OrderBusinessCharging extends OrderBusiness implements IOrderBusine
             }
 
             order = orderBusiness.load(order_number);
+
+            if (order.getAccumulatedMass() != null && charge.getAccumulatedMass() < order.getAccumulatedMass()) {
+                throw BusinessException.builder()
+                .message("La masa acumulada contiene información errónea: " + charge.getAccumulatedMass())
+                .build();
+            }
             
             OrderDetail detail = new OrderDetail();
             detail.setDensity(charge.getDensity());
             detail.setAccumulatedMass(charge.getAccumulatedMass());
-            detail.setTemperature(charge.getAccumulatedMass());
+            detail.setTemperature(charge.getTemperature());
             detail.setCaudal(charge.getCaudal());
             detail.setTimestamp(LocalDateTime.now());
-            detail.setOrder(charge);
+            detail.setOrder(order);
 
             order.setEndLoading(LocalDateTime.now());
+            order.setAccumulatedMass(charge.getAccumulatedMass());
+            order.setDensity(charge.getDensity());
+            order.setTemperature(charge.getTemperature());
+            order.setCaudal(charge.getCaudal());
 
             if (order.getDensity() == null &&
                 order.getAccumulatedMass() == null &&
@@ -106,24 +116,18 @@ public class OrderBusinessCharging extends OrderBusiness implements IOrderBusine
                 order.getCaudal() == null &&
                 order.getState() == OrderState.TARA_REGISTERED){
 
-                order.setAccumulatedMass(charge.getAccumulatedMass());
-                order.setDensity(charge.getDensity());
-                order.setTemperature(charge.getTemperature());
-                order.setCaudal(charge.getCaudal());
-
                 order.setStartLoading(LocalDateTime.now());
                 order.setState(OrderState.LOADING);
 
                 orderDetailDAO.save(detail);
                 return orderDAO.save(order);
             }
-            if(order.getAccumulatedMass()<detail.getAccumulatedMass()){
-                throw BusinessException.builder().message("La masa acumulada contiene informacion erronea" + detail.getAccumulatedMass())
-                   .build();
-            }
+            
             
             // Ya pasaron 10 segundos desde endLoading
-            if (Duration.between(orderDetailDAO.findLastTimestampByOrderId(order.getId()), detail.getTimestamp()).getSeconds() >= Constants.FREQUENCY) {
+            LocalDateTime lastTimestamp = orderDetailDAO.findLastTimestampByOrderId(order.getId());
+            if (lastTimestamp == null ||
+                Duration.between(lastTimestamp, detail.getTimestamp()).getSeconds() >= Constants.FREQUENCY) {
                 orderDetailDAO.save(detail);
             }
 

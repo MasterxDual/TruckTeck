@@ -48,7 +48,7 @@ public class ChargingRestController {
     @GetMapping(value = "/number/{number}/code/{code}")
     public ResponseEntity<?> load(@PathVariable String number,@PathVariable String code) {
         try {
-            return new ResponseEntity<>(orderBusiness.getPreset(number,code), HttpStatus.OK);
+            return new ResponseEntity<>(orderBusiness.getPreset(code,number), HttpStatus.OK);
         } catch(BusinessException e) {
             return new ResponseEntity<>(response.build(HttpStatus.INTERNAL_SERVER_ERROR, e, e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         } catch(NotFoundException e) {

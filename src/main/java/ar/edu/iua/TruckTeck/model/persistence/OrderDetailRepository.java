@@ -16,7 +16,9 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface OrderDetailRepository extends JpaRepository<OrderDetail, Long> {
     
-    @Query("SELECT od.timestamp; FROM OrderDetail od WHERE od.order.id = :orderId ORDER BY od.timestamp DESC")
+    @Query("SELECT od.timestamp FROM OrderDetail od WHERE od.order.id = :orderId ORDER BY od.timestamp DESC LIMIT 1")
     LocalDateTime findLastTimestampByOrderId(@Param("orderId") Long orderId);
+
+    OrderDetail findTopByOrderIdOrderByTimestampDesc(Long orderId);
 
 }
