@@ -16,9 +16,19 @@ import ar.edu.iua.TruckTeck.model.business.exceptions.BusinessException;
 import ar.edu.iua.TruckTeck.model.business.exceptions.EmptyFieldException;
 import ar.edu.iua.TruckTeck.model.business.exceptions.FoundException;
 import ar.edu.iua.TruckTeck.util.IStandardResponseBusiness;
+import ar.edu.iua.TruckTeck.util.StandardResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @RequestMapping(Constants.URL_ORDERS_SAP)
+@Tag(name = "SAP", description = "API Integración SAP para recepción de órdenes")
 public class SapRestController {
     /**
      * Componente de negocio encargado de la lógica de ordenes
@@ -49,6 +59,14 @@ public class SapRestController {
      *         - {@link HttpStatus#FOUND} si ya existe un producto con el mismo código,
      *         - {@link HttpStatus#INTERNAL_SERVER_ERROR} si ocurre un problema de negocio.
      */
+	@Operation(operationId = "add-order-sap", summary = "Crea una orden desde SAP (B2B)")
+	@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Payload JSON enviado por SAP (JSON crudo)", required = true, content = @Content(mediaType = "application/json", schema = @Schema(type = "string")))
+	@ApiResponses(value = {
+		@ApiResponse(responseCode = "201", description = "Orden creada correctamente. Se retorna header 'location' con la URI del nuevo recurso."),
+		@ApiResponse(responseCode = "302", description = "Recurso relacionado no encontrado (Found)", content = @Content(mediaType = "application/json", schema = @Schema(implementation = StandardResponse.class))),
+		@ApiResponse(responseCode = "400", description = "Datos de entrada inválidos", content = @Content(mediaType = "application/json", schema = @Schema(implementation = StandardResponse.class))),
+		@ApiResponse(responseCode = "500", description = "Error interno", content = @Content(mediaType = "application/json", schema = @Schema(implementation = StandardResponse.class)))
+	})
 	@PostMapping(value = "/b2b")
 	public ResponseEntity<?> addExternal(HttpEntity<String> httpEntity) {
 		try {

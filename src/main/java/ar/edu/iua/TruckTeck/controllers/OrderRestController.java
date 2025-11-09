@@ -21,6 +21,16 @@ import ar.edu.iua.TruckTeck.model.business.exceptions.BusinessException;
 import ar.edu.iua.TruckTeck.model.business.exceptions.FoundException;
 import ar.edu.iua.TruckTeck.model.business.exceptions.NotFoundException;
 import ar.edu.iua.TruckTeck.util.IStandardResponseBusiness;
+import ar.edu.iua.TruckTeck.util.StandardResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 /**
  * Controlador REST para la gestión de órdenes.
@@ -31,6 +41,7 @@ import ar.edu.iua.TruckTeck.util.IStandardResponseBusiness;
  */
 @RestController
 @RequestMapping(Constants.URL_ORDERS)
+@Tag(description = "API Servicios relacionados con Órdenes", name = "Order")
 public class OrderRestController {
     /**
      * Componente de negocio encargado de construir respuestas estándar.
@@ -54,6 +65,11 @@ public class OrderRestController {
      *         - {@link HttpStatus#OK} si la operación fue exitosa.
      *         - {@link HttpStatus#INTERNAL_SERVER_ERROR} si ocurre un {@link BusinessException}.
      */
+    @Operation(operationId = "list-orders", summary = "Lista todas las órdenes.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Devuelve la lista de órdenes.", content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = Order.class)))),
+        @ApiResponse(responseCode = "500", description = "Error interno", content = @Content(mediaType = "application/json", schema = @Schema(implementation = StandardResponse.class)))
+    })
     @GetMapping(value = "", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> list() {
         try {
@@ -77,6 +93,13 @@ public class OrderRestController {
      *         - {@link HttpStatus#FOUND} si ya existe una orden similar ({@link FoundException}).
      *         - {@link HttpStatus#INTERNAL_SERVER_ERROR} si ocurre un {@link BusinessException}.
      */
+    @Operation(operationId = "add-order", summary = "Crea una nueva orden.")
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Orden a crear", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = Order.class)))
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "201", description = "Orden creada. Se retorna header 'location' con la URI del nuevo recurso."),
+        @ApiResponse(responseCode = "302", description = "Orden ya existe", content = @Content(mediaType = "application/json", schema = @Schema(implementation = StandardResponse.class))),
+        @ApiResponse(responseCode = "500", description = "Error interno", content = @Content(mediaType = "application/json", schema = @Schema(implementation = StandardResponse.class)))
+    })
     @PostMapping(value = "")
     public ResponseEntity<?> add(@RequestBody Order order) {
         try {
@@ -100,6 +123,13 @@ public class OrderRestController {
      *         o un mensaje de error si ocurre una excepción de negocio (HTTP 500)
      *         o si no se encuentra la orden (HTTP 404).
      */
+    @Operation(operationId = "load-order", summary = "Carga una orden por su id.")
+    @Parameter(in = ParameterIn.PATH, name = "id", schema = @Schema(type = "long"), required = true, description = "Identificador de la orden.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Devuelve una Orden.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Order.class))}),
+        @ApiResponse(responseCode = "500", description = "Error interno", content = @Content(mediaType = "application/json", schema = @Schema(implementation = StandardResponse.class))),
+        @ApiResponse(responseCode = "404", description = "No se encuentra la orden para el identificador informado", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = StandardResponse.class))})
+    })
     @GetMapping(value = "/{id}")
     public ResponseEntity<?> load(@PathVariable long id) {
         try {
@@ -119,6 +149,13 @@ public class OrderRestController {
      *         o un mensaje de error si ocurre una excepción de negocio (HTTP 500)
      *         o si no se encuentra la orden (HTTP 404).
      */
+    @Operation(operationId = "load-order-by-number", summary = "Carga una orden por su número de orden.")
+    @Parameter(in = ParameterIn.PATH, name = "number", schema = @Schema(type = "string"), required = true, description = "Número de la orden a buscar")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Devuelve una Orden.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Order.class))}),
+        @ApiResponse(responseCode = "500", description = "Error interno", content = @Content(mediaType = "application/json", schema = @Schema(implementation = StandardResponse.class))),
+        @ApiResponse(responseCode = "404", description = "No se encuentra la orden para el número informado", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = StandardResponse.class))})
+    })
     @GetMapping(value = "/number/{number}")
     public ResponseEntity<?> load(@PathVariable String number) {
         try {
@@ -140,6 +177,14 @@ public class OrderRestController {
      *         o si la orden no existe (HTTP 404)
      *         o si la orden ya existe (HTTP 302).
      */
+    @Operation(operationId = "update-order", summary = "Actualiza una orden existente.")
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Orden con datos a actualizar", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = Order.class)))
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Orden actualizada correctamente."),
+        @ApiResponse(responseCode = "404", description = "Orden no encontrada", content = @Content(mediaType = "application/json", schema = @Schema(implementation = StandardResponse.class))),
+        @ApiResponse(responseCode = "302", description = "Conflicto: orden ya existe", content = @Content(mediaType = "application/json", schema = @Schema(implementation = StandardResponse.class))),
+        @ApiResponse(responseCode = "500", description = "Error interno", content = @Content(mediaType = "application/json", schema = @Schema(implementation = StandardResponse.class)))
+    })
     @PutMapping(value = "")
     public ResponseEntity<?> update(@RequestBody Order order) {
         try {
@@ -163,6 +208,13 @@ public class OrderRestController {
      *         o un mensaje de error si ocurre una excepción de negocio (HTTP 500)
      *         o si la orden no existe (HTTP 404).
      */
+    @Operation(operationId = "delete-order", summary = "Elimina una orden por su id.")
+    @Parameter(in = ParameterIn.PATH, name = "id", schema = @Schema(type = "long"), required = true, description = "Identificador de la orden a eliminar")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Orden eliminada correctamente."),
+        @ApiResponse(responseCode = "404", description = "Orden no encontrada", content = @Content(mediaType = "application/json", schema = @Schema(implementation = StandardResponse.class))),
+        @ApiResponse(responseCode = "500", description = "Error interno", content = @Content(mediaType = "application/json", schema = @Schema(implementation = StandardResponse.class)))
+    })
     @DeleteMapping(value = "/{id}")
     public ResponseEntity<?> delete(@PathVariable long id) {
         try {
@@ -186,6 +238,13 @@ public class OrderRestController {
      * @return Un {@link ResponseEntity} que contiene el objeto {@link Conciliation} (HTTP 200 OK),
      *         o un mensaje de error si la orden no está finalizada o no existe (HTTP 404/500).
      */
+    @Operation(operationId = "get-conciliation", summary = "Obtiene la conciliación de una orden finalizada por su número de orden.")
+    @Parameter(in = ParameterIn.PATH, name = "number", schema = @Schema(type = "string"), required = true, description = "Número de la orden a conciliar")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Devuelve la conciliación de la orden.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Conciliation.class))}),
+        @ApiResponse(responseCode = "500", description = "Error interno", content = @Content(mediaType = "application/json", schema = @Schema(implementation = StandardResponse.class))),
+        @ApiResponse(responseCode = "404", description = "Orden no encontrada o no finalizada", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = StandardResponse.class))})
+    })
     @GetMapping(value = "/number/{number}/conciliation")
     public ResponseEntity<?> getConciliation(@PathVariable String number) {
         try {

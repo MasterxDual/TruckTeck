@@ -13,6 +13,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ar.edu.iua.TruckTeck.controllers.Constants;
+import ar.edu.iua.TruckTeck.util.StandardResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import ar.edu.iua.TruckTeck.integration.tms.model.business.IOrderTmsBusiness;
 import ar.edu.iua.TruckTeck.model.Order;
 import ar.edu.iua.TruckTeck.model.business.exceptions.BusinessException;
@@ -22,6 +29,7 @@ import ar.edu.iua.TruckTeck.util.IStandardResponseBusiness;
 
 @RestController
 @RequestMapping(value = Constants.URL_TMS, produces = MediaType.APPLICATION_JSON_VALUE)
+@Tag(name = "TMS", description = "API Integración TMS para pesajes")
 public class TmsRestController {
 
     /**
@@ -58,6 +66,13 @@ public class TmsRestController {
      *         - {@link HttpStatus#NOT_FOUND} si no se encuentra la orden,
      *         - {@link HttpStatus#INTERNAL_SERVER_ERROR} si ocurre un error de negocio.
      */
+    @Operation(operationId = "register-initial-weighing", summary = "Registra el pesaje inicial de una orden (TMS)")
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "JSON con fields: number (string) y initialWeight (double)", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = Order.class)))
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Pesaje inicial registrado (header 'location' con recurso)."),
+        @ApiResponse(responseCode = "404", description = "Orden no encontrada", content = @Content(mediaType = "application/json", schema = @Schema(implementation = StandardResponse.class))),
+        @ApiResponse(responseCode = "500", description = "Error interno", content = @Content(mediaType = "application/json", schema = @Schema(implementation = StandardResponse.class)))
+    })
     @PostMapping(value = "b2b/weighing/initial")
     //public ResponseEntity<?> registerInitialWeighing(@PathVariable String number, @PathVariable Double weight) {
     public ResponseEntity<?> registerInitialWeighing(@RequestBody Order orderBody) {
@@ -114,6 +129,14 @@ public class TmsRestController {
      *         - {@link HttpStatus#NOT_FOUND} si no se encuentra la orden,
      *         - {@link HttpStatus#BAD_REQUEST} si la orden no está en estado correcto.
      */
+    @Operation(operationId = "register-final-weighing", summary = "Registra el pesaje final de una orden (TMS)")
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "JSON con fields: number (string) y finalWeight (double)", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = Order.class)))
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Pesaje final registrado (header 'location' con recurso)."),
+        @ApiResponse(responseCode = "404", description = "Orden no encontrada", content = @Content(mediaType = "application/json", schema = @Schema(implementation = StandardResponse.class))),
+        @ApiResponse(responseCode = "400", description = "Solicitud inválida o estado incorrecto", content = @Content(mediaType = "application/json", schema = @Schema(implementation = StandardResponse.class))),
+        @ApiResponse(responseCode = "500", description = "Error interno", content = @Content(mediaType = "application/json", schema = @Schema(implementation = StandardResponse.class)))
+    })
     @PostMapping(value = "b2b/weighing/final")
     public ResponseEntity<?> registerFinalWeighing(@RequestBody Order orderBody) {
         String number = orderBody.getNumber();
