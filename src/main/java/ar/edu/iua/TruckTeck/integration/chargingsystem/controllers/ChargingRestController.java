@@ -61,7 +61,13 @@ public class ChargingRestController {
 		try {
 			Order response = orderBusiness.addExternalCharging(httpEntity.getBody());
 			HttpHeaders responseHeaders = new HttpHeaders();
-			responseHeaders.set("location", Constants.URL_ORDERS_CHARGING + "/" + response.getId());
+			responseHeaders.set("location", Constants.URL_ORDERS_CHARGING 
+                                + "/id:" + response.getId() 
+                                + "/AccumulatedMass:" + response.getAccumulatedMass()
+                                + "/Density:" + response.getDensity() 
+                                + "/Temperature:" + response.getTemperature() 
+                                + "/Caudal:" + response.getCaudal()
+                                + "/EndLoading:" + response.getEndLoading());
 			return new ResponseEntity<>(responseHeaders, HttpStatus.CREATED);
 		} catch (BusinessException e) {
 			return new ResponseEntity<>(response.build(HttpStatus.INTERNAL_SERVER_ERROR, e, e.getMessage()),
