@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ar.edu.iua.TruckTeck.model.Client;
+import ar.edu.iua.TruckTeck.model.Conciliation;
 import ar.edu.iua.TruckTeck.model.Driver;
 import ar.edu.iua.TruckTeck.model.Order;
 import ar.edu.iua.TruckTeck.model.Product;
@@ -13,6 +14,7 @@ import ar.edu.iua.TruckTeck.model.Truck;
 import ar.edu.iua.TruckTeck.model.business.exceptions.BusinessException;
 import ar.edu.iua.TruckTeck.model.business.exceptions.FoundException;
 import ar.edu.iua.TruckTeck.model.business.exceptions.NotFoundException;
+import ar.edu.iua.TruckTeck.model.enums.OrderState;
 // import ar.edu.iua.TruckTeck.model.persistence.ClientRepository;
 import ar.edu.iua.TruckTeck.model.persistence.OrderRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -72,6 +74,9 @@ public class OrderBusiness implements IOrderBusiness {
      */
     @Autowired
     private IProductBusiness productBusiness;
+
+    @Autowired
+    private OrderDetailBusiness orderDetailBusiness;
 
     /**
      * Obtiene la lista completa de órdenes.
@@ -260,5 +265,49 @@ public class OrderBusiness implements IOrderBusiness {
             log.error(e.getMessage(), e);
             throw BusinessException.builder().ex(e).build();
         }
+    }
+
+    /**
+     * Obtiene la conciliación de una orden finalizada.
+     * <p>
+     * Calcula y retorna todos los datos de conciliación incluyendo pesos,
+     * diferencias y promedios de parámetros de carga.
+     * </p>
+     *
+     * @param number Número de la orden para la cual se solicita la conciliación.
+     * @return Objeto {@link Conciliation} con todos los datos calculados.
+     * @throws BusinessException Si ocurre un error en la lógica de negocio.
+     * @throws NotFoundException Si no se encuentra la orden con el número especificado.
+     */
+    @Override
+    public Conciliation findConciliation(String number) throws BusinessException, NotFoundException {
+        Order orderFound = load(number);
+
+        if (orderFound.getState() != OrderState.FINALIZED) {
+            throw BusinessException.builder()
+                .message("La orden " + orderFound.getNumber() + " no está finalizada. Estado actual: " + orderFound.getState())
+                .build();
+        }
+
+        Double initialWeight    = orderFound.getInitialWeight();
+        Double finalWeight      = orderFound.getFinalWeight();
+        Double productLoaded    = orderFound.getAccumulatedMass();
+        Double netWeight        = finalWeight - initialWeight;
+        Double difference       = netWeight - productLoaded;
+        Double avgTemperature   = orderDetailBusiness.calculateAverageTemperature(orderFound.getId());
+        Double avgDensity       = orderDetailBusiness.calculateAverageDensity(orderFound.getId());
+        Double avgCaudal        = orderDetailBusiness.calculateAverageCaudal(orderFound.getId());
+
+        /* Crear el Objeto Conciliacion */
+        return new Conciliation(
+            initialWeight,
+            finalWeight,
+            productLoaded,
+            netWeight,
+            difference,
+            avgTemperature,
+            avgDensity,
+            avgCaudal
+        );
     }
 }

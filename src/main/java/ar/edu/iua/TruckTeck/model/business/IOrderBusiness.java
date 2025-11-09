@@ -1,6 +1,8 @@
 package ar.edu.iua.TruckTeck.model.business;
 
 import java.util.List;
+
+import ar.edu.iua.TruckTeck.model.Conciliation;
 import ar.edu.iua.TruckTeck.model.Order;
 import ar.edu.iua.TruckTeck.model.business.exceptions.BusinessException;
 import ar.edu.iua.TruckTeck.model.business.exceptions.FoundException;
@@ -75,6 +77,20 @@ public interface IOrderBusiness {
      * @throws NotFoundException Si la orden a eliminar no existe.
      */
     public void delete(Long id) throws BusinessException, NotFoundException;
+
+    /**
+     * Obtiene la conciliación de una orden finalizada.
+     * <p>
+     * Calcula y retorna todos los datos de conciliación incluyendo pesos,
+     * diferencias y promedios de parámetros de carga.
+     * </p>
+     *
+     * @param number Número de la orden para la cual se solicita la conciliación.
+     * @return Objeto {@link Conciliation} con todos los datos calculados.
+     * @throws BusinessException Si ocurre un error en la lógica de negocio.
+     * @throws NotFoundException Si no se encuentra la orden con el número especificado.
+     */
+    public Conciliation findConciliation(String number) throws BusinessException, NotFoundException;
 
     // public Integer registerTare(long orderNumber, float tareWeight) throws BusinessException, NotFoundException;
     

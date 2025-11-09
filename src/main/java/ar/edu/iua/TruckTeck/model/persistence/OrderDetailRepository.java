@@ -7,11 +7,7 @@ import java.time.LocalDateTime;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-// import org.springframework.data.jpa.repository.Query;
-// import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-
-// import java.util.List;
 
 @Repository
 public interface OrderDetailRepository extends JpaRepository<OrderDetail, Long> {
@@ -21,4 +17,14 @@ public interface OrderDetailRepository extends JpaRepository<OrderDetail, Long> 
 
     OrderDetail findTopByOrderIdOrderByTimestampDesc(Long orderId);
 
+    /* Obtener Promedios */
+
+    @Query("SELECT AVG(d.temperature) FROM OrderDetail d WHERE d.order.id = :orderId")
+    Double findAverageTemperatureByOrderId(@Param("orderId") Long orderId);
+
+    @Query("SELECT AVG(d.density) FROM OrderDetail d WHERE d.order.id = :orderId")
+    Double findAverageDensityByOrderId(@Param("orderId") Long orderId);
+
+    @Query("SELECT AVG(d.caudal) FROM OrderDetail d WHERE d.order.id = :orderId")
+    Double findAverageCaudalByOrderId(@Param("orderId") Long orderId);
 }
