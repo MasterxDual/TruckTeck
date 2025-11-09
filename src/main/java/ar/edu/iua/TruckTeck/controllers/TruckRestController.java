@@ -22,6 +22,16 @@ import ar.edu.iua.TruckTeck.model.business.exceptions.BusinessException;
 import ar.edu.iua.TruckTeck.model.business.exceptions.FoundException;
 import ar.edu.iua.TruckTeck.model.business.exceptions.NotFoundException;
 import ar.edu.iua.TruckTeck.util.IStandardResponseBusiness;
+import ar.edu.iua.TruckTeck.util.StandardResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 
 /**
@@ -33,6 +43,7 @@ import ar.edu.iua.TruckTeck.util.IStandardResponseBusiness;
  */
 @RestController
 @RequestMapping(Constants.URL_TRUCKS)
+@Tag(description = "API Servicios relacionados con Camiones", name = "Truck")
 public class TruckRestController {
 
     /**
@@ -57,6 +68,11 @@ public class TruckRestController {
      *         - {@link HttpStatus#OK} si la operación fue exitosa.
      *         - {@link HttpStatus#INTERNAL_SERVER_ERROR} si ocurre un {@link BusinessException}.
      */
+    @Operation(operationId = "list-trucks", summary = "Lista todos los camiones.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Devuelve la lista de camiones.", content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = Truck.class)))),
+        @ApiResponse(responseCode = "500", description = "Error interno", content = @Content(mediaType = "application/json", schema = @Schema(implementation = StandardResponse.class)))
+    })
     @GetMapping(value = "", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> list() {
         try {
@@ -80,6 +96,13 @@ public class TruckRestController {
      *         - {@link HttpStatus#FOUND} si ya existe un camión similar ({@link FoundException}).
      *         - {@link HttpStatus#INTERNAL_SERVER_ERROR} si ocurre un {@link BusinessException}.
      */
+    @Operation(operationId = "add-truck", summary = "Crea un nuevo camión.")
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Camión a crear", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = Truck.class)))
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "201", description = "Camión creado. Se retorna header 'location' con la URI del nuevo recurso."),
+        @ApiResponse(responseCode = "302", description = "Camión ya existe", content = @Content(mediaType = "application/json", schema = @Schema(implementation = StandardResponse.class))),
+        @ApiResponse(responseCode = "500", description = "Error interno", content = @Content(mediaType = "application/json", schema = @Schema(implementation = StandardResponse.class)))
+    })
     @PostMapping(value = "")
     public ResponseEntity<?> add(@RequestBody Truck truck) {
         try {
@@ -103,6 +126,13 @@ public class TruckRestController {
      *         o un mensaje de error si ocurre una excepción de negocio (HTTP 500)
      *         o si no se encuentra el camión (HTTP 404).
      */
+    @Operation(operationId = "load-truck", summary = "Carga un camión por su id.")
+    @Parameter(in = ParameterIn.PATH, name = "id", schema = @Schema(type = "long"), required = true, description = "Identificador del camión.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Devuelve un Camión.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Truck.class))}),
+        @ApiResponse(responseCode = "500", description = "Error interno", content = @Content(mediaType = "application/json", schema = @Schema(implementation = StandardResponse.class))),
+        @ApiResponse(responseCode = "404", description = "No se encuentra el camión para el identificador informado", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = StandardResponse.class))})
+    })
     @GetMapping(value = "/{id}")
     public ResponseEntity<?> load(@PathVariable long id) {
         try {
@@ -122,6 +152,13 @@ public class TruckRestController {
      *         o un mensaje de error si ocurre una excepción de negocio (HTTP 500)
      *         o si no se encuentra el camión (HTTP 404).
      */
+    @Operation(operationId = "load-truck-by-name", summary = "Carga un camión por su dominio (patente).")
+    @Parameter(in = ParameterIn.PATH, name = "truck", schema = @Schema(type = "string"), required = true, description = "Dominio (patente) del camión a buscar")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Devuelve un Camión.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Truck.class))}),
+        @ApiResponse(responseCode = "500", description = "Error interno", content = @Content(mediaType = "application/json", schema = @Schema(implementation = StandardResponse.class))),
+        @ApiResponse(responseCode = "404", description = "No se encuentra el camión para el dominio informado", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = StandardResponse.class))})
+    })
     @GetMapping(value = "/by-name/{truck}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> load(@PathVariable String truck) {
         try {
@@ -142,6 +179,14 @@ public class TruckRestController {
      *         o si el camión no existe (HTTP 404)
      *         o si el camión existe (HTTP 302).
      */
+    @Operation(operationId = "update-truck", summary = "Actualiza un camión existente.")
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Camión con datos a actualizar", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = Truck.class)))
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Camión actualizado correctamente."),
+        @ApiResponse(responseCode = "404", description = "Camión no encontrado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = StandardResponse.class))),
+        @ApiResponse(responseCode = "302", description = "Conflicto: camión ya existe", content = @Content(mediaType = "application/json", schema = @Schema(implementation = StandardResponse.class))),
+        @ApiResponse(responseCode = "500", description = "Error interno", content = @Content(mediaType = "application/json", schema = @Schema(implementation = StandardResponse.class)))
+    })
     @PutMapping(value = "")
     public ResponseEntity<?> update(@RequestBody Truck truck) {
         try {
@@ -165,6 +210,13 @@ public class TruckRestController {
      *         o un mensaje de error si ocurre una excepción de negocio (HTTP 500)
      *         o si el camion no existe (HTTP 404).
      */
+    @Operation(operationId = "delete-truck", summary = "Elimina un camión por su id.")
+    @Parameter(in = ParameterIn.PATH, name = "id", schema = @Schema(type = "long"), required = true, description = "Identificador del camión a eliminar")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Camión eliminado correctamente."),
+        @ApiResponse(responseCode = "404", description = "Camión no encontrado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = StandardResponse.class))),
+        @ApiResponse(responseCode = "500", description = "Error interno", content = @Content(mediaType = "application/json", schema = @Schema(implementation = StandardResponse.class)))
+    })
     @DeleteMapping(value = "/{id}")
     public ResponseEntity<?> delete(@PathVariable long id) {
         try {

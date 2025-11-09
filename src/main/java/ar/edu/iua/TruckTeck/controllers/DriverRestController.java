@@ -20,6 +20,16 @@ import ar.edu.iua.TruckTeck.model.business.exceptions.BusinessException;
 import ar.edu.iua.TruckTeck.model.business.exceptions.FoundException;
 import ar.edu.iua.TruckTeck.model.business.exceptions.NotFoundException;
 import ar.edu.iua.TruckTeck.util.IStandardResponseBusiness;
+import ar.edu.iua.TruckTeck.util.StandardResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 /**
  * Controlador REST para la gestión de choferes.
@@ -30,6 +40,7 @@ import ar.edu.iua.TruckTeck.util.IStandardResponseBusiness;
  */
 @RestController
 @RequestMapping(Constants.URL_DRIVERS)
+@Tag(description = "API Servicios relacionados con Choferes", name = "Driver")
 public class DriverRestController {
 
     /**
@@ -55,6 +66,11 @@ public class DriverRestController {
      *         - {@link HttpStatus#INTERNAL_SERVER_ERROR} si ocurre un {@link BusinessException}.
      */
     @GetMapping(value = "", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(operationId = "list-drivers", summary = "Lista todos los choferes.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Devuelve la lista de choferes.", content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = Driver.class)))),
+        @ApiResponse(responseCode = "500", description = "Error interno", content = @Content(mediaType = "application/json", schema = @Schema(implementation = StandardResponse.class)))
+    })
     public ResponseEntity<?> list() {
         try {
             return new ResponseEntity<>(driverBusiness.list(), HttpStatus.OK);
@@ -78,6 +94,13 @@ public class DriverRestController {
      *         - {@link HttpStatus#INTERNAL_SERVER_ERROR} si ocurre un {@link BusinessException}.
      */
     @PostMapping(value = "")
+    @Operation(operationId = "add-driver", summary = "Crea un nuevo chofer.")
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Chofer a crear", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = Driver.class)))
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "201", description = "Chofer creado. Se retorna header 'location' con la URI del nuevo recurso."),
+        @ApiResponse(responseCode = "302", description = "Chofer ya existe", content = @Content(mediaType = "application/json", schema = @Schema(implementation = StandardResponse.class))),
+        @ApiResponse(responseCode = "500", description = "Error interno", content = @Content(mediaType = "application/json", schema = @Schema(implementation = StandardResponse.class)))
+    })
     public ResponseEntity<?> add(@RequestBody Driver driver) {
         try {
             Driver response = driverBusiness.add(driver);
@@ -101,6 +124,13 @@ public class DriverRestController {
      *         o si no se encuentra el chofer (HTTP 404).
      */
     @GetMapping(value = "/{id}")
+    @Operation(operationId = "load-driver", summary = "Carga un chofer por su id.")
+    @Parameter(in = ParameterIn.PATH, name = "id", schema = @Schema(type = "long"), required = true, description = "Identificador del chofer.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Devuelve un Chofer.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Driver.class))}),
+        @ApiResponse(responseCode = "500", description = "Error interno", content = @Content(mediaType = "application/json", schema = @Schema(implementation = StandardResponse.class))),
+        @ApiResponse(responseCode = "404", description = "No se encuentra el chofer para el identificador informado", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = StandardResponse.class))})
+    })
     public ResponseEntity<?> load(@PathVariable long id) {
         try {
             return new ResponseEntity<>(driverBusiness.load(id), HttpStatus.OK);
@@ -120,6 +150,13 @@ public class DriverRestController {
      *         o si no se encuentra el chofer (HTTP 404).
      */
     @GetMapping(value = "/by-document/{documentNumber}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(operationId = "load-driver-by-document", summary = "Carga un chofer por su número de documento.")
+    @Parameter(in = ParameterIn.PATH, name = "documentNumber", schema = @Schema(type = "string"), required = true, description = "Número de documento del chofer a buscar")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Devuelve un Chofer.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Driver.class))}),
+        @ApiResponse(responseCode = "500", description = "Error interno", content = @Content(mediaType = "application/json", schema = @Schema(implementation = StandardResponse.class))),
+        @ApiResponse(responseCode = "404", description = "No se encuentra el chofer para el número de documento informado", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = StandardResponse.class))})
+    })
     public ResponseEntity<?> load(@PathVariable String documentNumber) {
         try {
             return new ResponseEntity<>(driverBusiness.load(documentNumber), HttpStatus.OK);
@@ -140,6 +177,14 @@ public class DriverRestController {
      *         o si el chofer existe (HTTP 302).
      */
     @PutMapping(value = "")
+    @Operation(operationId = "update-driver", summary = "Actualiza un chofer existente.")
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Chofer con datos a actualizar", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = Driver.class)))
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Chofer actualizado correctamente."),
+        @ApiResponse(responseCode = "404", description = "Chofer no encontrado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = StandardResponse.class))),
+        @ApiResponse(responseCode = "302", description = "Conflicto: chofer ya existe", content = @Content(mediaType = "application/json", schema = @Schema(implementation = StandardResponse.class))),
+        @ApiResponse(responseCode = "500", description = "Error interno", content = @Content(mediaType = "application/json", schema = @Schema(implementation = StandardResponse.class)))
+    })
     public ResponseEntity<?> update(@RequestBody Driver driver) {
         try {
             driverBusiness.update(driver);
@@ -163,6 +208,13 @@ public class DriverRestController {
      *         o si el chofer no existe (HTTP 404).
      */
     @DeleteMapping(value = "/{id}")
+    @Operation(operationId = "delete-driver", summary = "Elimina un chofer por su id.")
+    @Parameter(in = ParameterIn.PATH, name = "id", schema = @Schema(type = "long"), required = true, description = "Identificador del chofer a eliminar")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Chofer eliminado correctamente."),
+        @ApiResponse(responseCode = "404", description = "Chofer no encontrado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = StandardResponse.class))),
+        @ApiResponse(responseCode = "500", description = "Error interno", content = @Content(mediaType = "application/json", schema = @Schema(implementation = StandardResponse.class)))
+    })
     public ResponseEntity<?> delete(@PathVariable long id) {
         try {
             driverBusiness.delete(id);

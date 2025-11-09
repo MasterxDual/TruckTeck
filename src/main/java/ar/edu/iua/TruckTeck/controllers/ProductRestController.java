@@ -21,6 +21,16 @@ import ar.edu.iua.TruckTeck.model.business.exceptions.BusinessException;
 import ar.edu.iua.TruckTeck.model.business.exceptions.FoundException;
 import ar.edu.iua.TruckTeck.model.business.exceptions.NotFoundException;
 import ar.edu.iua.TruckTeck.util.IStandardResponseBusiness;
+import ar.edu.iua.TruckTeck.util.StandardResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 
 /**
@@ -32,6 +42,7 @@ import ar.edu.iua.TruckTeck.util.IStandardResponseBusiness;
  */
 @RestController
 @RequestMapping(Constants.URL_PRODUCTS)
+@Tag(description = "API Servicios relacionados con Productos", name = "Product")
 public class ProductRestController {
 
     /**
@@ -57,6 +68,11 @@ public class ProductRestController {
      *         - {@link HttpStatus#INTERNAL_SERVER_ERROR} si ocurre un {@link BusinessException}.
      */
     @GetMapping(value = "", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(operationId = "list-products", summary = "Lista todos los productos.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Devuelve la lista de productos.", content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = Product.class)))),
+        @ApiResponse(responseCode = "500", description = "Error interno", content = @Content(mediaType = "application/json", schema = @Schema(implementation = StandardResponse.class)))
+    })
     public ResponseEntity<?> list() {
         try {
             return new ResponseEntity<>(productBusiness.list(), HttpStatus.OK);
@@ -80,6 +96,13 @@ public class ProductRestController {
      *         - {@link HttpStatus#INTERNAL_SERVER_ERROR} si ocurre un {@link BusinessException}.
      */
     @PostMapping(value = "")
+    @Operation(operationId = "add-product", summary = "Crea un nuevo producto.")
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Producto a crear", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = Product.class)))
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "201", description = "Producto creado. Se retorna header 'location' con la URI del nuevo recurso."),
+        @ApiResponse(responseCode = "302", description = "Producto ya existe", content = @Content(mediaType = "application/json", schema = @Schema(implementation = StandardResponse.class))),
+        @ApiResponse(responseCode = "500", description = "Error interno", content = @Content(mediaType = "application/json", schema = @Schema(implementation = StandardResponse.class)))
+    })
     public ResponseEntity<?> add(@RequestBody Product product) {
         try {
             Product response = productBusiness.add(product);
@@ -102,6 +125,20 @@ public class ProductRestController {
      *         o un mensaje de error si ocurre una excepción de negocio (HTTP 500)
      *         o si no se encuentra el producto (HTTP 404).
      */
+    @Operation(operationId = "load-product", summary = "Este servicio permite cargar un producto por su id.")
+	@Parameter(in = ParameterIn.PATH, name = "id", schema = @Schema(type = "long"), required = true, description = "Identificador del producto.")
+	@ApiResponses(value = { 
+			@ApiResponse(responseCode = "200", description = "Devuelve un Producto.", content = {
+				@Content(mediaType = "application/json", schema = @Schema(implementation = Product.class)) }),
+			@ApiResponse(responseCode = "500", description = "Error interno", content = {
+				@Content(mediaType = "application/json", schema = @Schema(implementation = StandardResponse.class)) }), 
+			/* Se agrega a futuro para el final
+            @ApiResponse(responseCode = "403", description = "No posee autorización para consumir este servicio", content = {
+				@Content(mediaType = "application/json", schema = @Schema(implementation = StandardResponse.class)) }),  */
+			@ApiResponse(responseCode = "404", description = "No se encuentra el producto para el identificador informado", content = {
+				@Content(mediaType = "application/json", schema = @Schema(implementation = StandardResponse.class)) }) 
+			
+	})
     @GetMapping(value = "/{id}")
     public ResponseEntity<?> load(@PathVariable long id) {
         try {
@@ -122,6 +159,13 @@ public class ProductRestController {
      *         o si no se encuentra el producto (HTTP 404).
      */
     @GetMapping(value = "/by-name/{product}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(operationId = "load-product-by-name", summary = "Carga un producto por su nombre.")
+    @Parameter(in = ParameterIn.PATH, name = "product", schema = @Schema(type = "string"), required = true, description = "Nombre del producto a buscar")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Devuelve un Producto.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Product.class))}),
+        @ApiResponse(responseCode = "500", description = "Error interno", content = @Content(mediaType = "application/json", schema = @Schema(implementation = StandardResponse.class))),
+        @ApiResponse(responseCode = "404", description = "No se encuentra el producto para el nombre informado", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = StandardResponse.class))})
+    })
     public ResponseEntity<?> load(@PathVariable String product) {
         try {
             return new ResponseEntity<>(productBusiness.load(product), HttpStatus.OK);
@@ -142,6 +186,14 @@ public class ProductRestController {
      *         o si el producto existe (HTTP 302).
      */
     @PutMapping(value = "")
+    @Operation(operationId = "update-product", summary = "Actualiza un producto existente.")
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Producto con datos a actualizar", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = Product.class)))
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Producto actualizado correctamente."),
+        @ApiResponse(responseCode = "404", description = "Producto no encontrado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = StandardResponse.class))),
+        @ApiResponse(responseCode = "302", description = "Conflicto: producto ya existe", content = @Content(mediaType = "application/json", schema = @Schema(implementation = StandardResponse.class))),
+        @ApiResponse(responseCode = "500", description = "Error interno", content = @Content(mediaType = "application/json", schema = @Schema(implementation = StandardResponse.class)))
+    })
     public ResponseEntity<?> update(@RequestBody Product product) {
         try {
             productBusiness.update(product);
@@ -165,6 +217,13 @@ public class ProductRestController {
      *         o si el producto no existe (HTTP 404).
      */
     @DeleteMapping(value = "/{id}")
+    @Operation(operationId = "delete-product", summary = "Elimina un producto por su id.")
+    @Parameter(in = ParameterIn.PATH, name = "id", schema = @Schema(type = "long"), required = true, description = "Identificador del producto a eliminar")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Producto eliminado correctamente."),
+        @ApiResponse(responseCode = "404", description = "Producto no encontrado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = StandardResponse.class))),
+        @ApiResponse(responseCode = "500", description = "Error interno", content = @Content(mediaType = "application/json", schema = @Schema(implementation = StandardResponse.class)))
+    })
     public ResponseEntity<?> delete(@PathVariable long id) {
         try {
             productBusiness.delete(id);

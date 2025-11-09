@@ -52,7 +52,16 @@ public class SecurityConfiguration {
         // CSRF: https://developer.mozilla.org/es/docs/Glossary/CSRF
         http.cors(CorsConfigurer::disable);
         http.csrf(AbstractHttpConfigurer::disable);
-        http.authorizeHttpRequests(auth -> auth.requestMatchers("/**").permitAll().anyRequest().authenticated());
+        http.authorizeHttpRequests(auth -> auth
+        // Permite el acceso a la documentación de la API
+        .requestMatchers("/v3/api-docs/**").permitAll()
+        .requestMatchers("/swagger-ui.html").permitAll()
+		.requestMatchers("/swagger-ui/**").permitAll()
+        .requestMatchers("/ui/**").permitAll()
+
+        .requestMatchers("/**").permitAll()
+        
+        .anyRequest().authenticated());
         return http.build();
     }
 }
