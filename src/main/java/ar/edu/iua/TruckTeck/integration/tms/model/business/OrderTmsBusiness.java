@@ -164,13 +164,13 @@ public class OrderTmsBusiness implements IOrderTmsBusiness {
     @Override
     public Order registerFinalWeighing(String number, Double finalWeight) 
             throws BusinessException, NotFoundException, FoundException {
-        
+
         log.info("TMS: Registrando pesaje final para código de activación: {}", number);
-        
+
         try {
             // // 1. Buscar la orden por código de activación
             // Optional<Order> orderOpt = orderRepository.findByActivationCode(activationCode);
-            
+
             // 1. Buscar la orden por número de orden
             Optional<Order> orderOpt = orderRepository.findByNumber(number);
             if (orderOpt.isEmpty()) {
@@ -179,7 +179,7 @@ public class OrderTmsBusiness implements IOrderTmsBusiness {
                 );
             }
             Order order = orderOpt.get();
-            
+
             // 2. Validar que la orden esté en estado LOADING (cerrada para carga)
             if (order.getState() != OrderState.LOADING) {
                 throw new BusinessException(
@@ -187,36 +187,41 @@ public class OrderTmsBusiness implements IOrderTmsBusiness {
                     " no está en estado LOADING (cerrada para carga). Estado actual: " + order.getState()
                 );
             }
-            
-            // 3. Validar que tenga pesaje inicial (por las dudas)
+
+            // 3. Validacioones:
             if (order.getInitialWeight() == null) {
                 throw new BusinessException(
                     "La orden " + order.getNumber() + " no tiene pesaje inicial registrado"
                 );
             }
-            
+            if (finalWeight < order.getInitialWeight()) {
+                throw new BusinessException(
+                    "El peso final (" + finalWeight + ") es menor al peso inicial"
+                );
+            }
+
             // 4. Registrar el peso final
             order.setFinalWeight(finalWeight);
             order.setEndWeighing(LocalDateTime.now());
-            
+
             // 5. Cambiar estado a FINALIZED
             OrderState previousState = order.getState();
             order.setState(OrderState.FINALIZED);
-            
+
             // 6. Guardar la orden
             Order savedOrder = orderRepository.save(order);
-            
+
             // 7. Registrar el cambio de estado en el log
             logStateChange(savedOrder, previousState, OrderState.FINALIZED, 
                 "TMS", "Pesaje final registrado. Peso: " + finalWeight + " kg");
-            
+
             log.info("TMS: Pesaje final registrado exitosamente. Orden: {}, Peso final: {} kg", 
                 savedOrder.getNumber(), finalWeight);
-            
+
             // 8. Retornar la orden con los datos de conciliación
             // La conciliación se calcula en tiempo real cuando se solicita
             return savedOrder;
-            
+
         } catch (NotFoundException e) {
             log.error("TMS: Error al registrar pesaje final: {}", e.getMessage());
             throw e;
@@ -285,12 +290,12 @@ public class OrderTmsBusiness implements IOrderTmsBusiness {
             statusLog.setTimestamp(LocalDateTime.now());
             statusLog.setActor(user);
             statusLog.setNote(observation);
-            
+
             orderStatusLogRepository.save(statusLog);
-            
+
             log.debug("Estado de orden {} registrado en auditoría: {} -> {}", 
                 order.getNumber(), previousState, newState);
-                
+
         } catch (Exception e) {
             log.error("Error al registrar cambio de estado en el log de auditoría", e);
             // No lanzamos excepción para no interrumpir el flujo principal del negocio

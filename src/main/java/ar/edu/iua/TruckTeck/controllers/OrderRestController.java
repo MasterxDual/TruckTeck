@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import ar.edu.iua.TruckTeck.model.Conciliation;
 import ar.edu.iua.TruckTeck.model.Order;
 import ar.edu.iua.TruckTeck.model.business.IOrderBusiness;
 import ar.edu.iua.TruckTeck.model.business.exceptions.BusinessException;
@@ -174,9 +175,29 @@ public class OrderRestController {
         }
     }
 
-}
+    /**
+     * Obtiene la conciliación de una orden finalizada por su número de orden.
+     * <p>
+     * La conciliación solo está disponible para órdenes en estado FINALIZED.
+     * Incluye datos de pesaje, diferencias y promedios de parámetros de carga.
+     * </p>
+     *
+     * @param number Número de la orden a conciliar.
+     * @return Un {@link ResponseEntity} que contiene el objeto {@link Conciliation} (HTTP 200 OK),
+     *         o un mensaje de error si la orden no está finalizada o no existe (HTTP 404/500).
+     */
+    @GetMapping(value = "/number/{number}/conciliation")
+    public ResponseEntity<?> getConciliation(@PathVariable String number) {
+        try {
+            return new ResponseEntity<>(orderBusiness.findConciliation(number), HttpStatus.OK);
+        } catch(BusinessException e) {
+            return new ResponseEntity<>(response.build(HttpStatus.INTERNAL_SERVER_ERROR, e, e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch(NotFoundException e) {
+            return new ResponseEntity<>(response.build(HttpStatus.NOT_FOUND, e, e.getMessage()), HttpStatus.NOT_FOUND);
+        }
+    }
 
-    
+}
 
 
 
