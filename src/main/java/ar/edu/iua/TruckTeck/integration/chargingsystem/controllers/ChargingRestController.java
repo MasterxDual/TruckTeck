@@ -16,11 +16,21 @@ import ar.edu.iua.TruckTeck.model.business.exceptions.BusinessException;
 import ar.edu.iua.TruckTeck.model.business.exceptions.EmptyFieldException;
 import ar.edu.iua.TruckTeck.model.business.exceptions.NotFoundException;
 import ar.edu.iua.TruckTeck.util.IStandardResponseBusiness;
+import ar.edu.iua.TruckTeck.util.StandardResponse;
 import ar.edu.iua.TruckTeck.controllers.Constants;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import ar.edu.iua.TruckTeck.integration.chargingsystem.model.business.IOrderBusinessCharging;
 
 @RestController
 @RequestMapping(Constants.URL_ORDERS_CHARGING)
+@Tag(name = "Charging", description = "API Integración con sistema de carga (Charging System)")
 public class ChargingRestController {
     
     /**
@@ -45,6 +55,14 @@ public class ChargingRestController {
      *         o un mensaje de error si ocurre una excepción de negocio (HTTP 500)
      *         o si no se encuentra la orden (HTTP 404).
      */
+    @Operation(operationId = "get-preset", summary = "Obtiene una orden por número y código de preset del cargador")
+    @Parameter(in = ParameterIn.PATH, name = "number", schema = @Schema(type = "string"), required = true, description = "Número de la orden")
+    @Parameter(in = ParameterIn.PATH, name = "code", schema = @Schema(type = "string"), required = true, description = "Código del preset")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Devuelve la orden encontrada", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Order.class))),
+        @ApiResponse(responseCode = "404", description = "Orden no encontrada", content = @Content(mediaType = "application/json", schema = @Schema(implementation = StandardResponse.class))),
+        @ApiResponse(responseCode = "500", description = "Error interno", content = @Content(mediaType = "application/json", schema = @Schema(implementation = StandardResponse.class)))
+    })
     @GetMapping(value = "/number/{number}/code/{code}")
     public ResponseEntity<?> load(@PathVariable String number,@PathVariable String code) {
         try {
@@ -56,8 +74,16 @@ public class ChargingRestController {
         }
     }
 
+    @Operation(operationId = "add-external-charging", summary = "Crea una orden desde el sistema de carga (B2B)")
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Payload recibido desde el sistema B2B (texto/JSON)", required = true, content = @Content(mediaType = "text/plain", schema = @Schema(type = "string")))
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "201", description = "Orden creada correctamente. Se retorna header 'location' con referencia al recurso."),
+        @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos", content = @Content(mediaType = "application/json", schema = @Schema(implementation = StandardResponse.class))),
+        @ApiResponse(responseCode = "302", description = "Recurso relacionado no encontrado (Found)", content = @Content(mediaType = "application/json", schema = @Schema(implementation = StandardResponse.class))),
+        @ApiResponse(responseCode = "500", description = "Error interno", content = @Content(mediaType = "application/json", schema = @Schema(implementation = StandardResponse.class)))
+    })
     @PostMapping(value = "/b2b")
-	public ResponseEntity<?> addExternal(HttpEntity<String> httpEntity) {
+    public ResponseEntity<?> addExternal(HttpEntity<String> httpEntity) {
 		try {
 			Order response = orderBusiness.addExternalCharging(httpEntity.getBody());
 			HttpHeaders responseHeaders = new HttpHeaders();
@@ -86,8 +112,15 @@ public class ChargingRestController {
         }
     }
 
+    @Operation(operationId = "mark-loaded", summary = "Marca una orden como 'loaded' desde el sistema de carga (B2B)")
+    @Parameter(in = ParameterIn.PATH, name = "number", schema = @Schema(type = "string"), required = true, description = "Número de la orden a marcar como cargada")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "201", description = "Orden marcada como cargada y creada/actualizada"),
+        @ApiResponse(responseCode = "302", description = "Recurso relacionado no encontrado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = StandardResponse.class))),
+        @ApiResponse(responseCode = "500", description = "Error interno", content = @Content(mediaType = "application/json", schema = @Schema(implementation = StandardResponse.class)))
+    })
     @PostMapping(value = "loaded/b2b/{number}")
-	public ResponseEntity<?> loaded(@PathVariable String number) {
+    public ResponseEntity<?> loaded(@PathVariable String number) {
 		try {
 			Order response = orderBusiness.changeStateLoaded(number);
 			HttpHeaders responseHeaders = new HttpHeaders();

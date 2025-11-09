@@ -20,6 +20,16 @@ import ar.edu.iua.TruckTeck.model.business.exceptions.BusinessException;
 import ar.edu.iua.TruckTeck.model.business.exceptions.FoundException;
 import ar.edu.iua.TruckTeck.model.business.exceptions.NotFoundException;
 import ar.edu.iua.TruckTeck.util.IStandardResponseBusiness;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import ar.edu.iua.TruckTeck.util.StandardResponse;
 
 /**
  * Controlador REST para la gestión de clientes.
@@ -30,6 +40,7 @@ import ar.edu.iua.TruckTeck.util.IStandardResponseBusiness;
  */
 @RestController
 @RequestMapping(Constants.URL_CLIENTS)
+@Tag(description = "API Servicios relacionados con Clientes", name = "Client")
 public class ClientRestController {
 
     /**
@@ -55,6 +66,11 @@ public class ClientRestController {
      *         - {@link HttpStatus#INTERNAL_SERVER_ERROR} si ocurre un {@link BusinessException}.
      */
     @GetMapping(value = "", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(operationId = "list-clients", summary = "Lista todos los clientes.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Devuelve la lista de clientes.", content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = Client.class)))),
+        @ApiResponse(responseCode = "500", description = "Error interno", content = @Content(mediaType = "application/json", schema = @Schema(implementation = StandardResponse.class)))
+    })
     public ResponseEntity<?> list() {
         try {
             return new ResponseEntity<>(clientBusiness.list(), HttpStatus.OK);
@@ -78,6 +94,13 @@ public class ClientRestController {
      *         - {@link HttpStatus#INTERNAL_SERVER_ERROR} si ocurre un {@link BusinessException}.
      */
     @PostMapping(value = "")
+    @Operation(operationId = "add-client", summary = "Crea un nuevo cliente.")
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Cliente a crear", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = Client.class)))
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "201", description = "Cliente creado. Se retorna header 'location' con la URI del nuevo recurso."),
+        @ApiResponse(responseCode = "302", description = "Cliente ya existe", content = @Content(mediaType = "application/json", schema = @Schema(implementation = StandardResponse.class))),
+        @ApiResponse(responseCode = "500", description = "Error interno", content = @Content(mediaType = "application/json", schema = @Schema(implementation = StandardResponse.class)))
+    })
     public ResponseEntity<?> add(@RequestBody Client client) {
         try {
             Client response = clientBusiness.add(client);
@@ -101,6 +124,13 @@ public class ClientRestController {
      *         o si no se encuentra el cliente (HTTP 404).
      */
     @GetMapping(value = "/{id}")
+    @Operation(operationId = "load-client", summary = "Carga un cliente por su id.")
+    @Parameter(in = ParameterIn.PATH, name = "id", schema = @Schema(type = "long"), required = true, description = "Identificador del cliente.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Devuelve un Cliente.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Client.class))}),
+        @ApiResponse(responseCode = "500", description = "Error interno", content = @Content(mediaType = "application/json", schema = @Schema(implementation = StandardResponse.class))),
+        @ApiResponse(responseCode = "404", description = "No se encuentra el cliente para el identificador informado", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = StandardResponse.class))})
+    })
     public ResponseEntity<?> load(@PathVariable long id) {
         try {
             return new ResponseEntity<>(clientBusiness.load(id), HttpStatus.OK);
@@ -120,6 +150,13 @@ public class ClientRestController {
      *         o si no se encuentra el cliente (HTTP 404).
      */
     @GetMapping(value = "/by-companyName/{companyName}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(operationId = "load-client-by-companyName", summary = "Carga un cliente por su nombre de compañía.")
+    @Parameter(in = ParameterIn.PATH, name = "companyName", schema = @Schema(type = "string"), required = true, description = "Nombre de la compañía del cliente a buscar")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Devuelve un Cliente.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Client.class))}),
+        @ApiResponse(responseCode = "500", description = "Error interno", content = @Content(mediaType = "application/json", schema = @Schema(implementation = StandardResponse.class))),
+        @ApiResponse(responseCode = "404", description = "No se encuentra el cliente para el nombre de compañía informado", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = StandardResponse.class))})
+    })
     public ResponseEntity<?> load(@PathVariable String companyName) {
         try {
             return new ResponseEntity<>(clientBusiness.load(companyName), HttpStatus.OK);
@@ -140,6 +177,14 @@ public class ClientRestController {
      *         o si el cliente existe (HTTP 302).
      */
     @PutMapping(value = "")
+    @Operation(operationId = "update-client", summary = "Actualiza un cliente existente.")
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Cliente con datos a actualizar", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = Client.class)))
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Cliente actualizado correctamente."),
+        @ApiResponse(responseCode = "404", description = "Cliente no encontrado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ar.edu.iua.TruckTeck.util.StandardResponse.class))),
+        @ApiResponse(responseCode = "302", description = "Conflicto: cliente ya existe", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ar.edu.iua.TruckTeck.util.StandardResponse.class))),
+        @ApiResponse(responseCode = "500", description = "Error interno", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ar.edu.iua.TruckTeck.util.StandardResponse.class)))
+    })
     public ResponseEntity<?> update(@RequestBody Client client) {
         try {
             clientBusiness.update(client);
@@ -163,6 +208,13 @@ public class ClientRestController {
      *         o si el cliente no existe (HTTP 404).
      */
     @DeleteMapping(value = "/{id}")
+    @Operation(operationId = "delete-client", summary = "Elimina un cliente por su id.")
+    @Parameter(in = ParameterIn.PATH, name = "id", schema = @Schema(type = "long"), required = true, description = "Identificador del cliente a eliminar")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Cliente eliminado correctamente."),
+        @ApiResponse(responseCode = "404", description = "Cliente no encontrado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = StandardResponse.class))),
+        @ApiResponse(responseCode = "500", description = "Error interno", content = @Content(mediaType = "application/json", schema = @Schema(implementation = StandardResponse.class)))
+    })
     public ResponseEntity<?> delete(@PathVariable long id) {
         try {
             clientBusiness.delete(id);
