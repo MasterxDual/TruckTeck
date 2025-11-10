@@ -1,5 +1,7 @@
 package ar.edu.iua.TruckTeck.integration.sap.model.business;
 
+import java.time.LocalDateTime;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -135,6 +137,9 @@ public class OrderBusinessSap extends OrderBusiness implements IOrderBusinessSap
             }
 
             log.info("Todos los campos obligatorios están presentes. Procediendo a agregar la orden...");
+
+            // Establecer la fecha y hora de recepción inicial de la orden como el momento actual
+            order.setInitialReception(LocalDateTime.now());
 
 		} catch (JsonProcessingException e) {
 			log.error(e.getMessage(), e);

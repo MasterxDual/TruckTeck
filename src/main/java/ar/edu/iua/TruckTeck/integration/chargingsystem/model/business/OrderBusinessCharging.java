@@ -100,7 +100,7 @@ public class OrderBusinessCharging extends OrderBusiness implements IOrderBusine
                 .message("La masa acumulada contiene información errónea: " + charge.getAccumulatedMass())
                 .build();
             }
-            
+
             OrderDetail detail = new OrderDetail();
             detail.setDensity(charge.getDensity());
             detail.setAccumulatedMass(charge.getAccumulatedMass());
@@ -109,24 +109,23 @@ public class OrderBusinessCharging extends OrderBusiness implements IOrderBusine
             detail.setTimestamp(LocalDateTime.now());
             detail.setOrder(order);
 
+
+            if (order.getDensity() == null &&
+            order.getAccumulatedMass() == null &&
+            order.getTemperature() == null &&
+            order.getCaudal() == null){
+
+                order.setStartLoading(LocalDateTime.now());
+
+
+            }
+
             order.setEndLoading(LocalDateTime.now());
             order.setAccumulatedMass(charge.getAccumulatedMass());
             order.setDensity(charge.getDensity());
             order.setTemperature(charge.getTemperature());
             order.setCaudal(charge.getCaudal());
 
-            if (order.getDensity() == null &&
-                order.getAccumulatedMass() == null &&
-                order.getTemperature() == null &&
-                order.getCaudal() == null){
-
-                order.setStartLoading(LocalDateTime.now());
-
-                orderDetailDAO.save(detail);
-                return orderDAO.save(order);
-            }
-            
-            
             // Ya pasaron 10 segundos desde endLoading
             LocalDateTime lastTimestamp = orderDetailDAO.findLastTimestampByOrderId(order.getId());
             if (lastTimestamp == null ||
@@ -159,10 +158,9 @@ public class OrderBusinessCharging extends OrderBusiness implements IOrderBusine
         if(order.getState() != OrderState.TARA_REGISTERED){
             throw BusinessException.builder().message("Esta orden se encuentra en un estado no permitido: " + order.getState()).build();
         }
-        order.setState(OrderState.LOADING);       
+        order.setState(OrderState.LOADING);
+        order.setCloseOrder(LocalDateTime.now());
         return orderDAO.save(order);
-        
-
     }
 
 }

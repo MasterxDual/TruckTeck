@@ -101,7 +101,7 @@ public class Order {
     private LocalDateTime startLoading;          // Primer dato válido de carga
     private LocalDateTime endLoading;            // Último dato válido de carga
     private LocalDateTime endWeighing;           // Cuando se registra pesaje final (Estado 4)
-    private LocalDateTime finalDataReception;    // Último dato recibido
+    private LocalDateTime closeOrder;    // Último dato recibido
 
     // ======= Pesajes =========
     private Double initialWeight;  // Tara (pesaje vacío)
