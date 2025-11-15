@@ -27,7 +27,7 @@ public final class AuthConstants {
      * ya que su filtración comprometería la seguridad del sistema.
      * </p>
      */
-	public static final String SECRET = "MyVerySecretKey";
+	public static final String SECRET = "MyVerySecretKey_9fA7xQ3pL2tB8rS6wM4zN1cH";
 	
     /**
      * Nombre del encabezado HTTP donde se espera recibir el token de autenticación.
