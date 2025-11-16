@@ -4,35 +4,38 @@ import lombok.Builder;
 import lombok.NoArgsConstructor;
 
 /**
- * Exception thrown to indicate that a provided password does not meet
- * the expected criteria or is invalid during authentication or validation processes.
+ * Excepción utilizada para indicar que una contraseña proporcionada no cumple
+ * con los criterios esperados o es inválida durante procesos de autenticación
+ * o validación.
+ *
  * <p>
- * This custom exception extends {@link Exception} and is typically used within
- * authentication or password management components to signal password-related issues.
+ * Esta excepción personalizada extiende {@link Exception} y se emplea 
+ * principalmente en componentes de autenticación o gestión de contraseñas 
+ * para señalar problemas relacionados con la validez o el procesamiento de la contraseña.
  * </p>
  *
- * <p>Examples of scenarios that may trigger this exception include:</p>
+ * <p>Algunos escenarios comunes que pueden generar esta excepción incluyen:</p>
  * <ul>
- *   <li>Incorrect user password during login.</li>
- *   <li>Password failing validation rules (e.g., complexity or length).</li>
- *   <li>Unexpected password hashing or encoding errors.</li>
+ *   <li>Contraseña incorrecta durante el inicio de sesión.</li>
+ *   <li>Contraseña que no cumple reglas de validación (por ejemplo, complejidad o longitud insuficiente).</li>
+ *   <li>Errores inesperados durante el proceso de hash o codificación de contraseñas.</li>
  * </ul>
  *
- * <p><b>Author:</b> IW3 Team - Universidad Argentina</p>
- * <p><b>Version:</b> 1.0.0</p>
+ * <p><b>Autor:</b> Equipo IW3 – Universidad Argentina</p>
+ * <p><b>Versión:</b> 1.0.0</p>
  */
 @NoArgsConstructor
 public class BadPasswordException extends Exception {
 
-    /** Serialization identifier for ensuring version compatibility. */
+    /** Identificador de serialización para garantizar compatibilidad de versiones. */
 	private static final long serialVersionUID = -8582277206660722157L;
 
     /**
-     * Constructs a new {@code BadPasswordException} with the specified detail message
-     * and cause.
+     * Construye una nueva {@code BadPasswordException} con un mensaje detallado
+     * y una causa asociada.
      *
-     * @param message the detail message providing additional context about the error.
-     * @param ex      the cause of this exception (may be {@code null}).
+     * @param message Mensaje descriptivo que brinda contexto adicional sobre el error.
+     * @param ex      Causa original de la excepción (puede ser {@code null}).
      */
 	@Builder
 	public BadPasswordException(String message, Throwable ex) {
@@ -40,9 +43,9 @@ public class BadPasswordException extends Exception {
 	}
 
     /**
-     * Constructs a new {@code BadPasswordException} with the specified detail message.
+     * Construye una nueva {@code BadPasswordException} con el mensaje detallado especificado.
      *
-     * @param message the detail message describing the reason for the exception.
+     * @param message Mensaje que explica el motivo de la excepción.
      */
 	@Builder
 	public BadPasswordException(String message) {
@@ -50,10 +53,10 @@ public class BadPasswordException extends Exception {
 	}
 
     /**
-     * Constructs a new {@code BadPasswordException} using the message from another
-     * {@link Throwable} as the detail message, and associates that exception as the cause.
+     * Construye una nueva {@code BadPasswordException} utilizando el mensaje de otra
+     * {@link Throwable} como detalle y asociándola como causa.
      *
-     * @param ex the originating exception that caused this error.
+     * @param ex Excepción original que provocó este error.
      */
 	@Builder
 	public BadPasswordException(Throwable ex) {

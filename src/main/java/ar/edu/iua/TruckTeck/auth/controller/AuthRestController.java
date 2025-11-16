@@ -4,7 +4,14 @@ import java.util.ArrayList;
 import java.util.Date;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationEventPublisher;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +34,7 @@ import ar.edu.iua.TruckTeck.auth.filters.AuthConstants;
 import ar.edu.iua.TruckTeck.controllers.BaseRestController;
 import ar.edu.iua.TruckTeck.controllers.Constants;
 import ar.edu.iua.TruckTeck.util.IStandardResponseBusiness;
+import ar.edu.iua.TruckTeck.util.StandardResponse;
 //import ar.edu.iw3.auth.event.UserEvent;
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -41,6 +49,7 @@ import jakarta.servlet.http.HttpServletRequest;
  * <p><b>Autor:</b> Equipo IW3 - Universidad Argentina</p>
  */
 @RestController
+@Tag(name = "Auth", description = "Endpoints de autenticación y utilidades relacionadas con JWT y usuarios")
 public class AuthRestController extends BaseRestController {
     /** 
      * Manejador de autenticación proporcionado por Spring Security.
@@ -54,11 +63,7 @@ public class AuthRestController extends BaseRestController {
 	@Autowired
 	private IStandardResponseBusiness response;
 	
-    /** 
-     * Publicador de eventos de la aplicación (para disparar eventos de usuario, etc.).
-     */
-	@Autowired
-	private ApplicationEventPublisher applicationEventPublisher;
+    // ApplicationEventPublisher removed: not used in this controller
 
 
     /**
@@ -79,8 +84,16 @@ public class AuthRestController extends BaseRestController {
      *             <li>Un mensaje de error interno si ocurre una excepción (HTTP 500).</li>
      *         </ul>
      */
-	@PostMapping(value = Constants.URL_LOGIN, produces = MediaType.TEXT_PLAIN_VALUE)
-	public ResponseEntity<?> loginExternalOnlyToken(@RequestParam String username, @RequestParam String password, HttpServletRequest request) {
+    @Operation(operationId = "login", summary = "Autentica un usuario y devuelve un token JWT")
+    @Parameter(in = ParameterIn.QUERY, name = "username", required = true, description = "Nombre de usuario")
+    @Parameter(in = ParameterIn.QUERY, name = "password", required = true, description = "Contraseña del usuario")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Token JWT generado", content = @Content(mediaType = "text/plain", schema = @Schema(type = "string"))),
+        @ApiResponse(responseCode = "401", description = "Credenciales inválidas", content = @Content(mediaType = "application/json", schema = @Schema(implementation = StandardResponse.class))),
+        @ApiResponse(responseCode = "500", description = "Error interno", content = @Content(mediaType = "application/json", schema = @Schema(implementation = StandardResponse.class)))
+    })
+    @PostMapping(value = Constants.URL_LOGIN, produces = MediaType.TEXT_PLAIN_VALUE)
+    public ResponseEntity<?> loginExternalOnlyToken(@RequestParam String username, @RequestParam String password, HttpServletRequest request) {
 		Authentication auth = null;
 		try {
 			auth = authManager.authenticate(((CustomAuthenticationManager) authManager).authWrap(username, password));
@@ -128,8 +141,14 @@ public class AuthRestController extends BaseRestController {
      *             <li>Un mensaje de error en caso de excepción (HTTP 500).</li>
      *         </ul>
      */
-	@GetMapping(value = "/demo/encodepass", produces = MediaType.TEXT_PLAIN_VALUE)
-	public ResponseEntity<?> encodepass(@RequestParam String password) {
+    @Operation(operationId = "encode-password", summary = "Encripta (hash) una contraseña para pruebas")
+    @Parameter(in = ParameterIn.QUERY, name = "password", required = true, description = "Contraseña en texto plano a encriptar")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Contraseña encriptada", content = @Content(mediaType = "text/plain", schema = @Schema(type = "string"))),
+        @ApiResponse(responseCode = "500", description = "Error interno", content = @Content(mediaType = "application/json", schema = @Schema(implementation = StandardResponse.class)))
+    })
+    @GetMapping(value = "/demo/encodepass", produces = MediaType.TEXT_PLAIN_VALUE)
+    public ResponseEntity<?> encodepass(@RequestParam String password) {
 		try {
 			return new ResponseEntity<String>(pEncoder.encode(password), HttpStatus.OK);
 		} catch (Exception e) {

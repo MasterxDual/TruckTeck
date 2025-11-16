@@ -26,17 +26,21 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * Represents a system user and implements {@link UserDetails} for Spring Security integration.
- * <p>
- * This entity is mapped to the {@code users} table in the database. Users may have multiple roles
- * defined by the {@link Role} entity, which are used for authorization checks and security enforcement.
- * </p>
- * 
- * <p>The class also provides validation methods for checking account status, such as expired,
- * locked, or disabled accounts.</p>
+ * Representa un usuario del sistema e implementa {@link UserDetails} para la integración con Spring Security.
  *
- * <p><b>Author:</b> IW3 Team - Universidad Argentina</p>
- * <p><b>Version:</b> 1.0.0</p>
+ * <p>
+ * Esta entidad se encuentra mapeada a la tabla {@code users} en la base de datos. 
+ * Cada usuario puede poseer múltiples roles definidos por la entidad {@link Role}, 
+ * los cuales son utilizados para la autorización y el control de acceso.
+ * </p>
+ *
+ * <p>
+ * La clase también proporciona métodos para validar el estado de la cuenta, 
+ * como si se encuentra expirada, bloqueada o deshabilitada.
+ * </p>
+ *
+ * <p><b>Autor:</b> Equipo IW3 – Universidad Argentina</p>
+ * <p><b>Versión:</b> 1.0.0</p>
  */
 @Entity
 @Table(name = "users")
@@ -47,23 +51,23 @@ import lombok.Setter;
 
 public class User implements UserDetails {
 
-	/** Flag indicating whether the account has expired. Defaults to true. */
+	/** Indica si la cuenta no ha expirado. Por defecto, true. */
 	@Column(columnDefinition = "tinyint default 0")
 	private boolean accountNonExpired = true;
 
-	/** Flag indicating whether the account is locked. Defaults to true. */
+    /** Indica si la cuenta no está bloqueada. Por defecto, true. */
 	@Column(columnDefinition = "tinyint default 0")
 	private boolean accountNonLocked = true;
 
-	/** Flag indicating whether the credentials have expired. Defaults to true. */
+    /** Indica si las credenciales no han expirado. Por defecto, true. */
 	@Column(columnDefinition = "tinyint default 0")
 	private boolean credentialsNonExpired = true;
 
-	/** Flag indicating whether the account is enabled. Defaults to false. */
+    /** Indica si la cuenta está habilitada. Por defecto, false. */
 	@Column(columnDefinition = "tinyint default 0")
 	private boolean enabled;
 
-	/** Validation constants used in the {@link #validate()} method. */
+    /** Constantes de validación utilizadas en el método {@link #validate()}. */
 	public static final String VALIDATION_OK = "OK";
 	public static final String VALIDATION_ACCOUNT_EXPIRED = "ACCOUNT_EXPIRED";
 	public static final String VALIDATION_CREDENTIALS_EXPIRED = "CREDENTIALS_EXPIRED";
@@ -71,12 +75,12 @@ public class User implements UserDetails {
 	public static final String VALIDATION_DISABLED = "DISABLED";
 
 	/**
-     * Validates the account status of the user.
+     * Valida el estado de la cuenta del usuario.
      *
-     * @return One of the validation constants indicating the account status:
+     * @return Una de las constantes de validación indicando el estado actual:
      *         {@link #VALIDATION_OK}, {@link #VALIDATION_ACCOUNT_EXPIRED},
      *         {@link #VALIDATION_CREDENTIALS_EXPIRED}, {@link #VALIDATION_LOCKED},
-     *         or {@link #VALIDATION_DISABLED}.
+     *         o {@link #VALIDATION_DISABLED}.
      */
 	public String validate() {
 		if (!accountNonExpired)
@@ -90,24 +94,24 @@ public class User implements UserDetails {
 		return VALIDATION_OK;
 	}
 
-	/** User email (unique and required). */
+    /** Correo electrónico del usuario (único y obligatorio). */
 	@Column(length = 255, nullable = false, unique = true)
 	private String email;
 
-	/** Primary key of the user entity. */
+    /** Clave primaria del usuario. */
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long idUser;
 	@Column(length = 100, unique = true)
 
-	/** Username (unique). */
+    /** Nombre de usuario (único). */
 	private String username;
 
-	/** User password (hashed). */
+    /** Contraseña del usuario (en formato hash). */
 	private String password;
 
 
-	/** Set of roles assigned to the user for authorization purposes. */
+    /** Conjunto de roles asignados al usuario para fines de autorización. */
 	@ManyToMany(fetch = FetchType.EAGER)
 	@JoinTable(name = "userroles", joinColumns = {
 			@JoinColumn(name = "idUser", referencedColumnName = "idUser") }, inverseJoinColumns = {
@@ -115,10 +119,10 @@ public class User implements UserDetails {
 	private Set<Role> roles;
 
 	/**
-     * Checks if the user has a specific {@link Role}.
+     * Verifica si el usuario posee un rol específico.
      *
-     * @param role The {@link Role} to check.
-     * @return {@code true} if the user has the role, {@code false} otherwise.
+     * @param role Rol a verificar.
+     * @return {@code true} si el usuario tiene el rol, de lo contrario {@code false}.
      */
 	@Transient
 	public boolean isInRole(Role role) {
@@ -126,10 +130,10 @@ public class User implements UserDetails {
 	}
 
 	/**
-     * Checks if the user has a role by name.
+     * Verifica si el usuario posee un rol según su nombre.
      *
-     * @param role Role name to check.
-     * @return {@code true} if the user has the role, {@code false} otherwise.
+     * @param role Nombre del rol.
+     * @return {@code true} si el usuario tiene el rol, de lo contrario {@code false}.
      */
 	@Transient
 	public boolean isInRole(String role) {
@@ -140,9 +144,9 @@ public class User implements UserDetails {
 	}
 
 	/**
-     * Returns the authorities granted to the user for Spring Security.
+     * Devuelve las autoridades concedidas al usuario para Spring Security.
      *
-     * @return A collection of {@link GrantedAuthority} representing user roles.
+     * @return Colección de {@link GrantedAuthority} que representa los roles del usuario.
      */
 	@Transient
 	@Override
@@ -153,9 +157,9 @@ public class User implements UserDetails {
 	}
 
 	/**
-     * Returns a list of authority names (role names) assigned to the user.
+     * Devuelve una lista con los nombres de los roles asignados al usuario.
      *
-     * @return List of role names.
+     * @return Lista de nombres de roles.
      */
 	@Transient
 	public List<String> getAuthoritiesStr() {

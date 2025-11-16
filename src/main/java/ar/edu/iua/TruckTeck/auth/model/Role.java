@@ -14,17 +14,20 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * Represents a security role assigned to users within the system.
+ * Representa un rol de seguridad asignado a los usuarios del sistema.
+ *
  * <p>
- * This entity is mapped to the {@code roles} table in the database and implements
- * {@link Serializable} to allow role instances to be serialized.
- * Roles are used to control access and permissions for {@link User} entities.
+ * Esta entidad está mapeada a la tabla {@code roles} en la base de datos e implementa
+ * {@link Serializable}, lo que permite que las instancias de la clase sean serializables.
+ * Los roles se utilizan para definir permisos y controlar el acceso de las entidades {@link User}.
  * </p>
  *
- * <p>Common examples of roles include: "ADMIN", "USER", "MANAGER", etc.</p>
+ * <p>
+ * Ejemplos comunes de roles incluyen: "ADMIN", "USER", "MANAGER", entre otros.
+ * </p>
  *
- * <p><b>Author:</b> IW3 Team - Universidad Argentina</p>
- * <p><b>Version:</b> 1.0.0</p>
+ * <p><b>Autor:</b> Equipo IW3 – Universidad Argentina</p>
+ * <p><b>Versión:</b> 1.0.0</p>
  */
 @Entity
 @Table(name = "roles")
@@ -33,27 +36,27 @@ import lombok.Setter;
 @Getter
 @Setter
 public class Role implements Serializable {
-	/** Serialization identifier for ensuring version compatibility. */
+    /** Identificador de serialización para garantizar compatibilidad de versiones. */
 	private static final long serialVersionUID = -845420067971973620L;
 
 	/**
-     * Human-readable description of the role.
-     * <p>Cannot be null and has a maximum length of 100 characters.</p>
+     * Descripción del rol en formato legible.
+     * <p>No puede ser nula y tiene un máximo de 100 caracteres.</p>
      */
 	@Column(nullable = false, length = 100)
 	private String description;
 
 	/**
-     * Primary key identifier for the role.
-     * <p>Automatically generated using the identity strategy.</p>
+     * Identificador principal del rol.
+     * <p>Generado automáticamente mediante la estrategia de identidad.</p>
      */
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
 
 	/**
-     * Unique name of the role, used for security checks and authorization.
-     * <p>Cannot be null and must be unique.</p>
+     * Nombre único del rol, utilizado en verificaciones de seguridad y autorización.
+     * <p>No puede ser nulo y debe ser único.</p>
      */
 	@Column(unique = true, nullable = false)
 	private String name;
