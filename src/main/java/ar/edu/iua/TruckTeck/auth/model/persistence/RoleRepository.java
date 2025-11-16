@@ -6,17 +6,19 @@ import org.springframework.stereotype.Repository;
 import ar.edu.iua.TruckTeck.auth.model.Role;
 
 /**
- * Repository interface for performing CRUD operations on {@link Role} entities.
+ * Interfaz de repositorio para realizar operaciones CRUD sobre entidades {@link Role}.
+ *
  * <p>
- * This interface extends {@link JpaRepository} providing standard methods for
- * saving, updating, deleting, and retrieving {@link Role} instances from the database.
- * It leverages Spring Data JPA's repository abstraction to reduce boilerplate code.
+ * Esta interfaz extiende {@link JpaRepository}, lo que proporciona métodos estándar para
+ * guardar, actualizar, eliminar y recuperar instancias de {@link Role} desde la base de datos.
+ * Aprovecha la abstracción de repositorios de Spring Data JPA, reduciendo la necesidad 
+ * de escribir código repetitivo.
  * </p>
  *
- * <p><b>Author:</b> IW3 Team - Universidad Argentina</p>
- * <p><b>Version:</b> 1.0.0</p>
+ * <p><b>Autor:</b> Equipo IW3 – Universidad Argentina</p>
+ * <p><b>Versión:</b> 1.0.0</p>
  */
 @Repository
 public interface RoleRepository extends JpaRepository<Role, Integer>{ 
-    // No additional methods are required; JpaRepository provides standard CRUD operations.
+    // No se requieren métodos adicionales; JpaRepository provee las operaciones CRUD estándar.
 }

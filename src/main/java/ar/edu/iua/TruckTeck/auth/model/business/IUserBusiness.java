@@ -9,67 +9,73 @@ import ar.edu.iua.TruckTeck.model.business.exceptions.BusinessException;
 import ar.edu.iua.TruckTeck.model.business.exceptions.NotFoundException;
 
 /**
- * Interface defining the business operations for managing {@link User} entities.
+ * Interfaz que define las operaciones de negocio para la gestión de entidades {@link User}.
+ *
  * <p>
- * This interface abstracts the core user management functionalities such as loading,
- * enabling/disabling accounts, changing passwords, and listing all users. Implementations
- * should handle the necessary validations and business rules.
+ * Esta interfaz abstrae las funcionalidades centrales vinculadas a la administración
+ * de usuarios, tales como la carga de información, habilitación o deshabilitación
+ * de cuentas, modificación de contraseñas y obtención de listados completos.
+ * Las implementaciones deben aplicar las validaciones necesarias y hacer cumplir
+ * las reglas de negocio correspondientes.
  * </p>
- * 
- * <p><b>Author:</b> IW3 Team - Universidad Argentina</p>
- * <p><b>Version:</b> 1.0.0</p>
+ *
+ * <p><b>Autor:</b> Equipo IW3 – Universidad Argentina</p>
+ * <p><b>Versión:</b> 1.0.0</p>
  */
 public interface IUserBusiness {
-	/**
-     * Loads a {@link User} entity based on the provided username or email.
+	
+    /**
+     * Carga un usuario a partir del nombre de usuario o correo electrónico proporcionado.
      *
-     * @param usernameOrEmail The username or email of the user to be retrieved.
-     * @return The {@link User} corresponding to the provided identifier.
-     * @throws NotFoundException   If no user is found with the given username or email.
-     * @throws BusinessException   If a general business error occurs during the operation.
+     * @param usernameOrEmail Nombre de usuario o correo electrónico a buscar.
+     * @return El {@link User} correspondiente al identificador recibido.
+     * @throws NotFoundException  Si no se encuentra un usuario con los datos indicados.
+     * @throws BusinessException  Si ocurre un error de negocio durante la operación.
      */
 	public User load(String usernameOrEmail) throws NotFoundException, BusinessException;
 
 	/**
-     * Changes the password of a user.
+     * Cambia la contraseña de un usuario.
      *
-     * <p>The method validates the old password and applies the new password
-     * using the provided {@link PasswordEncoder}.</p>
+     * <p>
+     * El método valida la contraseña actual y aplica la nueva utilizando el
+     * {@link PasswordEncoder} proporcionado.
+     * </p>
      *
-     * @param usernameOrEmail The username or email of the user.
-     * @param oldPassword     The current password of the user.
-     * @param newPassword     The new password to be set.
-     * @param pEncoder        The password encoder used to hash the new password.
-     * @throws BadPasswordException If the new password does not meet security requirements.
-     * @throws NotFoundException    If the user cannot be found.
-     * @throws BusinessException    If a business logic error occurs during password change.
+     * @param usernameOrEmail Nombre de usuario o correo electrónico del usuario.
+     * @param oldPassword     Contraseña actual.
+     * @param newPassword     Nueva contraseña a establecer.
+     * @param pEncoder        Codificador utilizado para hashear la nueva contraseña.
+     * @throws BadPasswordException Si la nueva contraseña no cumple los requisitos de seguridad.
+     * @throws NotFoundException    Si el usuario no existe.
+     * @throws BusinessException    Si ocurre un error de negocio durante el proceso.
      */
 	public void changePassword(String usernameOrEmail, String oldPassword, String newPassword, PasswordEncoder pEncoder)
 			throws BadPasswordException, NotFoundException, BusinessException;
 
 	/**
-     * Disables a user account.
+     * Deshabilita la cuenta de un usuario.
      *
-     * @param usernameOrEmail The username or email of the user to disable.
-     * @throws NotFoundException If the user does not exist.
-     * @throws BusinessException If a business rule or database error occurs.
+     * @param usernameOrEmail Nombre de usuario o correo electrónico del usuario a deshabilitar.
+     * @throws NotFoundException Si el usuario no existe.
+     * @throws BusinessException Si se produce un error de negocio o de acceso a la base de datos.
      */			
 	public void disable(String usernameOrEmail) throws NotFoundException, BusinessException;
 
 	/**
-     * Enables a previously disabled user account.
+     * Habilita la cuenta previamente deshabilitada de un usuario.
      *
-     * @param usernameOrEmail The username or email of the user to enable.
-     * @throws NotFoundException If the user does not exist.
-     * @throws BusinessException If a business rule or database error occurs.
+     * @param usernameOrEmail Nombre de usuario o correo electrónico del usuario a habilitar.
+     * @throws NotFoundException Si el usuario no existe.
+     * @throws BusinessException Si ocurre un error durante la operación de habilitación.
      */
 	public void enable(String usernameOrEmail) throws NotFoundException, BusinessException;
 	
 	/**
-     * Retrieves a list of all {@link User} entities.
+     * Obtiene un listado de todos los usuarios registrados.
      *
-     * @return A {@link List} of all registered users.
-     * @throws BusinessException If an error occurs during the retrieval process.
+     * @return Una {@link List} que contiene todas las entidades {@link User}.
+     * @throws BusinessException Si ocurre algún error durante la consulta.
      */
 	public List<User> list() throws BusinessException;
 

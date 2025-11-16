@@ -16,32 +16,38 @@ import ar.edu.iua.TruckTeck.auth.model.business.exception.BadPasswordException;
 import ar.edu.iua.TruckTeck.auth.model.persistence.UserRepository;
 
 /**
- * Service implementation of {@link IUserBusiness} that manages user operations.
+ * Implementación del servicio {@link IUserBusiness} encargada de gestionar
+ * las operaciones relacionadas con usuarios.
+ *
  * <p>
- * This class provides business logic for user management, including loading users,
- * changing passwords, enabling/disabling accounts, and listing all users.
- * It integrates with {@link UserRepository} for persistence operations and uses
- * {@link PasswordEncoder} for secure password handling.
+ * Esta clase centraliza la lógica de negocio vinculada a la administración de usuarios,
+ * incluyendo carga de información, modificación de contraseñas, habilitación o deshabilitación
+ * de cuentas y obtención de listados completos. 
  * </p>
  *
- * <p><b>Author:</b> IW3 Team - Universidad Argentina</p>
- * <p><b>Version:</b> 1.0.0</p>
+ * <p>
+ * Para las operaciones de persistencia utiliza {@link UserRepository}, mientras que
+ * {@link PasswordEncoder} se emplea para el manejo seguro de contraseñas.
+ * </p>
+ *
+ * <p><b>Autor:</b> Equipo IW3 – Universidad Argentina</p>
+ * <p><b>Versión:</b> 1.0.0</p>
  */
 @Service
 @Slf4j
 public class UserBusiness implements IUserBusiness {
-	/** Repository for CRUD operations on {@link User} entities. */
+    /** Repositorio para operaciones CRUD sobre entidades {@link User}. */
 	@Autowired
 	private UserRepository userDAO;
 
 
 	/**
-     * Loads a {@link User} by username or email.
+     * Carga un usuario a partir de su nombre de usuario o correo electrónico.
      *
-     * @param usernameOrEmail The username or email of the user to load.
-     * @return The {@link User} corresponding to the given identifier.
-     * @throws NotFoundException If no user is found with the specified username or email.
-     * @throws BusinessException If an unexpected business error occurs during the operation.
+     * @param usernameOrEmail Nombre de usuario o correo electrónico.
+     * @return El {@link User} correspondiente.
+     * @throws NotFoundException Si no se encuentra un usuario con los datos provistos.
+     * @throws BusinessException Si ocurre un error inesperado durante la consulta.
      */
 	@Override
 	public User load(String usernameOrEmail) throws NotFoundException, BusinessException {
@@ -60,15 +66,15 @@ public class UserBusiness implements IUserBusiness {
 	}
 
 	/**
-     * Changes the password of a user after validating the old password.
+     * Cambia la contraseña de un usuario luego de validar la contraseña anterior.
      *
-     * @param usernameOrEmail The username or email of the user.
-     * @param oldPassword     The current password of the user.
-     * @param newPassword     The new password to set.
-     * @param pEncoder        {@link PasswordEncoder} used to encode the new password.
-     * @throws BadPasswordException If the old password does not match the stored password.
-     * @throws NotFoundException    If the user cannot be found.
-     * @throws BusinessException    If an unexpected error occurs during saving.
+     * @param usernameOrEmail Nombre de usuario o correo electrónico.
+     * @param oldPassword     Contraseña actual.
+     * @param newPassword     Nueva contraseña.
+     * @param pEncoder        Codificador de contraseñas.
+     * @throws BadPasswordException Si la contraseña actual no coincide con la almacenada.
+     * @throws NotFoundException    Si el usuario no existe.
+     * @throws BusinessException    Si ocurre un error durante la actualización.
      */
 	@Override
 	public void changePassword(String usernameOrEmail, String oldPassword, String newPassword, PasswordEncoder pEncoder)
@@ -87,11 +93,11 @@ public class UserBusiness implements IUserBusiness {
 	}
 
 	/**
-     * Disables a user account (sets enabled to false).
+     * Deshabilita la cuenta de un usuario.
      *
-     * @param usernameOrEmail The username or email of the user to disable.
-     * @throws NotFoundException If the user cannot be found.
-     * @throws BusinessException If an unexpected error occurs during saving.
+     * @param usernameOrEmail Nombre de usuario o correo electrónico.
+     * @throws NotFoundException Si el usuario no existe.
+     * @throws BusinessException Si ocurre un error durante la persistencia.
      */
 	@Override
 	public void disable(String usernameOrEmail) throws NotFoundException, BusinessException {
@@ -99,11 +105,11 @@ public class UserBusiness implements IUserBusiness {
 	}
 
 	/**
-     * Enables a user account (sets enabled to true).
+     * Habilita la cuenta de un usuario previamente deshabilitado.
      *
-     * @param usernameOrEmail The username or email of the user to enable.
-     * @throws NotFoundException If the user cannot be found.
-     * @throws BusinessException If an unexpected error occurs during saving.
+     * @param usernameOrEmail Nombre de usuario o correo electrónico.
+     * @throws NotFoundException Si el usuario no existe.
+     * @throws BusinessException Si ocurre un error durante la persistencia.
      */
 	@Override
 	public void enable(String usernameOrEmail) throws NotFoundException, BusinessException {
@@ -111,12 +117,12 @@ public class UserBusiness implements IUserBusiness {
 	}
 
 	/**
-     * Sets the enabled state of a user account.
+     * Establece el estado de habilitación de un usuario.
      *
-     * @param usernameOrEmail The username or email of the user.
-     * @param enable          {@code true} to enable, {@code false} to disable.
-     * @throws NotFoundException If the user cannot be found.
-     * @throws BusinessException If an unexpected error occurs during saving.
+     * @param usernameOrEmail Nombre de usuario o correo electrónico.
+     * @param enable          {@code true} para habilitar; {@code false} para deshabilitar.
+     * @throws NotFoundException Si el usuario no existe.
+     * @throws BusinessException Si ocurre un error durante la persistencia.
      */
 	private void setDisable(String usernameOrEmail, boolean enable) throws NotFoundException, BusinessException {
 		User user = load(usernameOrEmail);
@@ -130,10 +136,10 @@ public class UserBusiness implements IUserBusiness {
 	}
 
 	/**
-     * Returns a list of all users in the system.
+     * Recupera la lista completa de usuarios registrados en el sistema.
      *
-     * @return {@link List} of {@link User} entities.
-     * @throws BusinessException If an error occurs while retrieving the users.
+     * @return Lista de entidades {@link User}.
+     * @throws BusinessException Si ocurre un error al consultar los datos.
      */
 	@Override
 	public List<User> list() throws BusinessException {
