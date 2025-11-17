@@ -4,13 +4,16 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeIn;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
 
-/*
-Agregar para el final
- @OpenAPIDefinition(
+
+@OpenAPIDefinition(
     security = @SecurityRequirement(name = "Bearer Authentication")
     )
     @SecurityScheme(
@@ -19,9 +22,8 @@ Agregar para el final
         bearerFormat = "JWT",
         scheme = "bearer",
         in = SecuritySchemeIn.HEADER
-		) */
+		)
 @Configuration
-@OpenAPIDefinition
 public class OpenApiConfig {
  ///Doc: https://springdoc.org/#Introduction
    @Bean
@@ -36,10 +38,6 @@ public class OpenApiConfig {
                .title("TruckTeck - Ing Web 3")
                .description("API Backend - Ing Web 3\n\n" + contributors)
                .version("v1.0")
-               /* .contact(new Contact()
-                   .name("MasterxDual")
-                   .url("https://github.com/MasterxDual")
-                   .email("agustinbram@gmail.com")) */
                .termsOfService("TOC")
                .license(new License().name("License").url("#"))
            );

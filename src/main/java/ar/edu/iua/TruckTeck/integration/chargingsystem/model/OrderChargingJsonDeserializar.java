@@ -31,7 +31,6 @@ public class OrderChargingJsonDeserializar extends StdDeserializer<Order>{
 		super(vc);
 	}
 
-
     /**
      * Deserializa una representación JSON en un objeto {@link Order}.
      * <p>

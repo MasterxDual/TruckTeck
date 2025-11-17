@@ -95,12 +95,12 @@ public class OrderBusinessCharging extends OrderBusiness implements IOrderBusine
      * @throws NotFoundException Si no se encuentra la orden correspondiente al número recibido.
      */
     public Order addExternalCharging(String json) throws BusinessException, EmptyFieldException, NotFoundException{
-        
+
         ObjectMapper mapper = JsonUtiles.getObjectMapper(Order.class,
 				new OrderChargingJsonDeserializar(Order.class),null);
 		Order charge = null;
         Order order = null;
-        
+
 		try {
 			charge = mapper.readValue(json, Order.class);
 
@@ -183,7 +183,7 @@ public class OrderBusinessCharging extends OrderBusiness implements IOrderBusine
      * @throws NotFoundException Si no se encuentra una orden con el número de referencia especificado.
      */
     public Order changeStateLoaded(String number) throws BusinessException, NotFoundException{
-        
+
         Order order = new Order();
         try {
             order = orderBusiness.load(number);
