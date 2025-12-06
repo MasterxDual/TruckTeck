@@ -11,6 +11,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import ar.edu.iua.TruckTeck.integration.chargingsystem.model.OrderChargingJsonDeserializar;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import ar.edu.iua.TruckTeck.model.Order;
 import ar.edu.iua.TruckTeck.model.OrderDetail;
 import ar.edu.iua.TruckTeck.model.business.IOrderBusiness;
@@ -55,6 +56,10 @@ public class OrderBusinessCharging extends OrderBusiness implements IOrderBusine
      */
     @Autowired
     private IOrderBusiness orderBusiness;
+
+    @Autowired
+    private SimpMessagingTemplate messagingTemplate;
+
 
 
     /**
@@ -163,6 +168,8 @@ public class OrderBusinessCharging extends OrderBusiness implements IOrderBusine
                 Duration.between(lastTimestamp, detail.getTimestamp()).getSeconds() >= Constants.FREQUENCY) {
                 orderDetailDAO.save(detail);
             }
+            // Notificar a los suscriptores sobre el nuevo detalle de la orden
+            messagingTemplate.convertAndSend("/topic/detail", detail);
 
 		} catch (JsonProcessingException e) {
 			log.error(e.getMessage(), e);

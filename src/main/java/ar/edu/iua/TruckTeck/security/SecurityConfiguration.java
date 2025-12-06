@@ -1,5 +1,7 @@
 package ar.edu.iua.TruckTeck.security;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,6 +16,9 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -121,8 +126,11 @@ public class SecurityConfiguration {
 		http.csrf(AbstractHttpConfigurer::disable);
 		// Define request authorization rules
 		http.authorizeHttpRequests(auth -> auth.requestMatchers(HttpMethod.POST, Constants.URL_LOGIN).permitAll()
-				.requestMatchers("/v3/api-docs/**").permitAll().requestMatchers("/swagger-ui.html").permitAll()
-				.requestMatchers("/swagger-ui/**").permitAll().requestMatchers("/ui/**").permitAll()
+				.requestMatchers("/v3/api-docs/**").permitAll()
+                .requestMatchers("/swagger-ui.html").permitAll()
+				.requestMatchers("/swagger-ui/**").permitAll()
+                .requestMatchers("/ui/**").permitAll()
+                .requestMatchers("/ws/**").permitAll()
 				.requestMatchers("/demo/**").permitAll().anyRequest().authenticated());
 
 		// Enable HTTP Basic authentication (optional, for testing)
@@ -134,5 +142,32 @@ public class SecurityConfiguration {
 		return http.build();
 
 	}
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+
+        CorsConfiguration config = new CorsConfiguration();
+
+        // 🔥 Permite tu frontend
+        config.setAllowedOriginPatterns(List.of("*"));
+
+        // 🔥 Métodos
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+
+        // 🔥 Headers permitidos
+        config.setAllowedHeaders(List.of("*"));
+
+        // 🔥 Exponer Authorization para leer el JWT
+        config.setExposedHeaders(List.of("Authorization"));
+
+        config.setAllowCredentials(false);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+
+        // 🔥 Aplica a TODOS los endpoints (incluye WS handshake)
+        source.registerCorsConfiguration("/**", config);
+
+        return source;
+    }
 
 }
