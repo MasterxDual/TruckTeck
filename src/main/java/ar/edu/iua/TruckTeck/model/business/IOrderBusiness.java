@@ -92,6 +92,16 @@ public interface IOrderBusiness {
      */
     public Conciliation findConciliation(String number) throws BusinessException, NotFoundException;
 
+    /**
+     * Genera el PDF de conciliación.
+     *
+     * @param number Número de la orden.
+     * @return Array de bytes del PDF generado.
+     * @throws BusinessException Si ocurre un error al generar el PDF.
+     * @throws NotFoundException Si no se encuentra la orden.
+    */
+    byte[] generateConciliationPdf(String number) throws BusinessException, NotFoundException;
+
     // public Integer registerTare(long orderNumber, float tareWeight) throws BusinessException, NotFoundException;
     
     // public void addDetail(long orderNumber, OrderDetail detail) throws BusinessException, NotFoundException;
