@@ -123,7 +123,9 @@ public class SecurityConfiguration {
 		http.authorizeHttpRequests(auth -> auth.requestMatchers(HttpMethod.POST, Constants.URL_LOGIN).permitAll()
 				.requestMatchers("/v3/api-docs/**").permitAll().requestMatchers("/swagger-ui.html").permitAll()
 				.requestMatchers("/swagger-ui/**").permitAll().requestMatchers("/ui/**").permitAll()
-				.requestMatchers("/demo/**").permitAll().anyRequest().authenticated());
+				.requestMatchers("/demo/**").permitAll()
+				.requestMatchers("/static/**", "/*.png", "/*.jpg", "/*.jpeg", "/*.gif", "/*.svg").permitAll()
+				.anyRequest().authenticated());
 
 		// Enable HTTP Basic authentication (optional, for testing)
 		http.httpBasic(Customizer.withDefaults())
