@@ -19,8 +19,8 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+// import org.springframework.web.servlet.config.annotation.CorsRegistry;
+// import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import ar.edu.iua.TruckTeck.auth.model.business.IUserBusiness;
 import ar.edu.iua.TruckTeck.auth.custom.CustomAuthenticationManager;
@@ -80,15 +80,15 @@ public class SecurityConfiguration {
      *
      * @return {@link WebMvcConfigurer} instance with CORS configuration.
      */
-	@Bean
-	WebMvcConfigurer corsConfigurer() {
-		return new WebMvcConfigurer() {
-			@Override
-			public void addCorsMappings(CorsRegistry registry) {
-				registry.addMapping("/**").allowedMethods("*").allowedHeaders("*").allowedOrigins("*");
-			}
-		};
-	}
+	// @Bean
+	// WebMvcConfigurer corsConfigurer() {
+	// 	return new WebMvcConfigurer() {
+	// 		@Override
+	// 		public void addCorsMappings(CorsRegistry registry) {
+	// 			registry.addMapping("/**").allowedMethods("*").allowedHeaders("*").allowedOrigins("*");
+	// 		}
+	// 	};
+	// }
 
 	/** Provides business logic for user operations, used in authentication. */
 	@Autowired
@@ -122,12 +122,19 @@ public class SecurityConfiguration {
 		// CORS: https://developer.mozilla.org/es/docs/Web/HTTP/CORS
 		// CSRF: https://developer.mozilla.org/es/docs/Glossary/CSRF
 
-		// Disable CSRF protection for stateless REST APIs
-		http.csrf(AbstractHttpConfigurer::disable);
-		// Define request authorization rules
+    	// Habilitar CORS usando la configuración personalizada
+    	http.cors(cors -> cors.configurationSource(corsConfigurationSource()));
+    
+    	// CSRF: Deshabilitar para APIs REST sin estado
+    	http.csrf(AbstractHttpConfigurer::disable);
+    
+    	// Define reglas de autorización de peticiones
 		http.authorizeHttpRequests(auth -> auth.requestMatchers(HttpMethod.POST, Constants.URL_LOGIN).permitAll()
-				.requestMatchers("/v3/api-docs/**").permitAll().requestMatchers("/swagger-ui.html").permitAll()
-				.requestMatchers("/swagger-ui/**").permitAll().requestMatchers("/ui/**").permitAll().requestMatchers("/ws/**").permitAll()
+				.requestMatchers("/v3/api-docs/**").permitAll()
+				.requestMatchers("/swagger-ui.html").permitAll()
+				.requestMatchers("/swagger-ui/**").permitAll()
+				.requestMatchers("/ui/**").permitAll()
+				.requestMatchers("/ws/**").permitAll()
 				.requestMatchers("/demo/**").permitAll()
 				.requestMatchers("/static/**", "/*.png", "/*.jpg", "/*.jpeg", "/*.gif", "/*.svg").permitAll()
 				.anyRequest().authenticated());
@@ -164,19 +171,44 @@ public class SecurityConfiguration {
         CorsConfiguration config = new CorsConfiguration();
 
         // Permite únicamente los orígenes del frontend (desarrollo local)
-        config.setAllowedOrigins(List.of("http://localhost:5173", "http://localhost:5500"));
+        config.setAllowedOrigins(List.of(
+			"http://localhost:5173",
+			"http://localhost:5500",
+			"http://localhost:5174"
+		));
 
         // Métodos HTTP permitidos en las solicitudes al backend
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
 
-    	  // Headers permitidos que el cliente puede enviar
-        config.setAllowedHeaders(List.of("*"));
+    	// // Headers permitidos que el cliente puede enviar
+        // config.setAllowedHeaders(List.of("*"));
 
-        // Headers expuestos al frontend (necesario para leer el JWT desde Authorization)
-        config.setExposedHeaders(List.of("Authorization"));
+        // // Headers expuestos al frontend (necesario para leer el JWT desde Authorization)
+        // config.setExposedHeaders(List.of("Authorization"));
 
-		// Deshabilita el envío de cookies o credenciales en la solicitud
-        config.setAllowCredentials(false);
+		// // Deshabilita el envío de cookies o credenciales en la solicitud
+        // config.setAllowCredentials(false);
+
+		// Headers permitidos que el cliente puede enviar
+    	config.setAllowedHeaders(List.of(
+    	    "Origin",
+    	    "Content-Type",
+    	    "Accept",
+    	    "Authorization",
+    	    "X-Requested-With"
+    	));
+
+    	// Headers expuestos al frontend
+    	config.setExposedHeaders(List.of(
+    	    "Authorization",
+    	    "Content-Disposition"  // Necesario para descargar PDFs
+    	));
+
+    	// Habilitar credenciales si usas JWT
+    	config.setAllowCredentials(true);
+	
+    	// Cache de preflight OPTIONS por 1 hora
+    	config.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 
