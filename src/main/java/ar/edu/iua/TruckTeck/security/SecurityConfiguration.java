@@ -128,7 +128,7 @@ public class SecurityConfiguration {
 		http.authorizeHttpRequests(auth -> auth.requestMatchers(HttpMethod.POST, Constants.URL_LOGIN).permitAll()
 				.requestMatchers("/v3/api-docs/**").permitAll().requestMatchers("/swagger-ui.html").permitAll()
 				.requestMatchers("/swagger-ui/**").permitAll().requestMatchers("/ui/**").permitAll().requestMatchers("/ws/**").permitAll()
-				.requestMatchers("/demo/**").permitAll().anyRequest().authenticated()
+				.requestMatchers("/demo/**").permitAll()
 				.requestMatchers("/static/**", "/*.png", "/*.jpg", "/*.jpeg", "/*.gif", "/*.svg").permitAll()
 				.anyRequest().authenticated());
     
@@ -175,13 +175,13 @@ public class SecurityConfiguration {
         // Headers expuestos al frontend (necesario para leer el JWT desde Authorization)
         config.setExposedHeaders(List.of("Authorization"));
 
-		    // Deshabilita el envío de cookies o credenciales en la solicitud
+		// Deshabilita el envío de cookies o credenciales en la solicitud
         config.setAllowCredentials(false);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 
         //Aplica a TODOS los endpoints (incluye WS handshake)
-		    // Aplica la configuración CORS a todos los endpoints de la API
+		// Aplica la configuración CORS a todos los endpoints de la API
         source.registerCorsConfiguration("/**", config);
 
         return source;
