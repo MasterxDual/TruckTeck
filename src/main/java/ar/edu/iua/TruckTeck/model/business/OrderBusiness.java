@@ -17,6 +17,7 @@ import ar.edu.iua.TruckTeck.model.business.exceptions.NotFoundException;
 import ar.edu.iua.TruckTeck.model.enums.OrderState;
 // import ar.edu.iua.TruckTeck.model.persistence.ClientRepository;
 import ar.edu.iua.TruckTeck.model.persistence.OrderRepository;
+import ar.edu.iua.TruckTeck.util.PdfGenerationService;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -77,6 +78,14 @@ public class OrderBusiness implements IOrderBusiness {
 
     @Autowired
     private OrderDetailBusiness orderDetailBusiness;
+
+
+    /* Generador de PDF */
+    @Autowired
+    private PdfGenerationService pdfService;
+
+    // @Autowired
+    // private EmailService emailService;
 
     /**
      * Obtiene la lista completa de órdenes.
@@ -324,5 +333,36 @@ public class OrderBusiness implements IOrderBusiness {
             avgDensity,
             avgCaudal
         );
+    }
+
+    @Override
+    public byte[] generateConciliationPdf(String number) throws BusinessException, NotFoundException {
+        try {
+            // Obtener orden y conciliación
+            Order order = load(number);
+
+            if (order.getState() != OrderState.FINALIZED) {
+                throw BusinessException.builder()
+                    .message("La orden " + order.getNumber() + " no está finalizada. Estado actual: " + order.getState())
+                    .build();
+            }
+
+            Conciliation conciliation = findConciliation(number);
+
+            // Generar PDF
+            byte[] pdfBytes = pdfService.generateConciliationPdf(order, conciliation);
+
+            log.info("PDF de conciliación generado exitosamente para orden: {}", number);
+            return pdfBytes;
+
+        } catch (NotFoundException e) {
+            throw e;
+        } catch (Exception e) {
+            log.error("Error al generar PDF de conciliación para orden: {}", number, e);
+            throw BusinessException.builder()
+                .message("Error al generar PDF de conciliación: " + e.getMessage())
+                .ex(e)
+                .build();
+        }
     }
 }
