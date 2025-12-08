@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -14,6 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import ar.edu.iua.TruckTeck.model.TemperatureAlertConfig;
 import ar.edu.iua.TruckTeck.model.business.ITemperatureAlertConfigBusiness;
+import ar.edu.iua.TruckTeck.model.business.exceptions.BusinessException;
+import ar.edu.iua.TruckTeck.model.business.exceptions.FoundException;
 import ar.edu.iua.TruckTeck.model.business.exceptions.NotFoundException;
 import ar.edu.iua.TruckTeck.util.IStandardResponseBusiness;
 import ar.edu.iua.TruckTeck.util.StandardResponse;
@@ -94,10 +97,10 @@ public class TemperatureAlertConfigController {
         @ApiResponse(responseCode = "404", description = "Configuración no encontrada", content = @Content(mediaType = "application/json", schema = @Schema(implementation = StandardResponse.class))),
         @ApiResponse(responseCode = "500", description = "Error interno", content = @Content(mediaType = "application/json", schema = @Schema(implementation = StandardResponse.class)))
     })
-    @PutMapping(value = "/reset-email", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> resetEmailSent() {
+    @PutMapping(value = "/reset-email/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> resetEmailSent(@PathVariable long id) {
         try {
-            temperatureAlertConfigBusiness.resetEmailSent();
+            temperatureAlertConfigBusiness.resetEmailSent(id);
             return new ResponseEntity<>(
                 response.build(HttpStatus.OK, null, "La flag emailAlreadySent fue reseteada correctamente"),
                 HttpStatus.OK
@@ -108,6 +111,13 @@ public class TemperatureAlertConfigController {
             response.build(HttpStatus.NOT_FOUND, e, e.getMessage()),
             HttpStatus.NOT_FOUND
             );
+        }
+        catch(BusinessException e) {
+            return new ResponseEntity<>(response.build(HttpStatus.INTERNAL_SERVER_ERROR, e, e.getMessage()),
+             HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        catch(FoundException e) {
+            return new ResponseEntity<>(response.build(HttpStatus.FOUND, e, e.getMessage()), HttpStatus.FOUND);
         }
     }
 

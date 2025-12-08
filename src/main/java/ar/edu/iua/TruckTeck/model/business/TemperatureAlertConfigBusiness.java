@@ -5,7 +5,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import ar.edu.iua.TruckTeck.model.Order;
+import ar.edu.iua.TruckTeck.model.OrderDetail;
 import ar.edu.iua.TruckTeck.model.TemperatureAlertConfig;
+import ar.edu.iua.TruckTeck.model.business.exceptions.BusinessException;
+import ar.edu.iua.TruckTeck.model.business.exceptions.FoundException;
 import ar.edu.iua.TruckTeck.model.business.exceptions.NotFoundException;
 import ar.edu.iua.TruckTeck.model.persistence.TemperatureAlertConfigRepository;
 import ar.edu.iua.TruckTeck.util.EmailService;
@@ -34,6 +38,9 @@ public class TemperatureAlertConfigBusiness  implements ITemperatureAlertConfigB
 
     @Autowired
     private EmailService emailService;
+
+    @Autowired
+    private IOrderBusiness orderBusiness;
 
     /**
     * Obtiene la configuración única del sistema (siempre id = 1).
@@ -82,26 +89,16 @@ public class TemperatureAlertConfigBusiness  implements ITemperatureAlertConfigB
         return repository.save(config);
     }
 
-    /**
-     * Marca que ya se envió un email de alerta para evitar envíos repetidos.
-     *
-     * @throws NotFoundException si la configuración no existe
-     */
-    public void setEmailSent()  throws NotFoundException {
-        TemperatureAlertConfig config = getConfig();
-        config.setEmailAlreadySent(true);
-        repository.save(config);
-    }
 
     /**
      * Resetea el estado de envío de correo para permitir nuevos avisos.
      *
      * @throws NotFoundException si la configuración no existe
      */
-    public void resetEmailSent()  throws NotFoundException {
-        TemperatureAlertConfig config = getConfig();
-        config.setEmailAlreadySent(false);
-        repository.save(config);
+    public void resetEmailSent(Long id)  throws NotFoundException, BusinessException, FoundException {
+        Order order = orderBusiness.load(id);
+        order.setTemperatureAlarmSent(false);
+        orderBusiness.update(order);
     }
 
     /**
@@ -114,22 +111,22 @@ public class TemperatureAlertConfigBusiness  implements ITemperatureAlertConfigB
      * @return true si se envió un email de alerta; false si no era necesario o no se pudo enviar
      * @throws NotFoundException si la configuración no existe
      */
-    public boolean checkAndSendAlert(double currentTemperature) throws NotFoundException {
+    public boolean checkAndSendAlert(OrderDetail detail) throws NotFoundException {
         TemperatureAlertConfig config = getConfig();
 
         double threshold = config.getThreshold();
 
-        log.info("Verificando temperatura: {} vs threshold: {}", currentTemperature, threshold);
+        log.info("Verificando temperatura: {} vs threshold: {}", detail.getTemperature(), threshold);
 
         // Si ya enviamos y no queremos spamear, no hacemos nada
-       if (config.isEmailAlreadySent()) {
+       if (detail.getOrder().getTemperatureAlarmSent()) {
            log.info("Email ya fue enviado previamente, no se reenviará para evitar spam");
            return false;
         }
 
         // ¿Superó el umbral?
-       if (currentTemperature > threshold) {
-           log.info("La temperatura actual (" + currentTemperature + "°C) superó el límite configurado (" + threshold + "°C).");
+       if (detail.getTemperature() > threshold) {
+           log.info("La temperatura actual (" + detail.getTemperature() + "°C) superó el límite configurado (" + threshold + "°C).");
            
            // Verificamos que existan emails configurados
            if (config.getEmails() == null || config.getEmails().isEmpty()) {
@@ -144,10 +141,31 @@ public class TemperatureAlertConfigBusiness  implements ITemperatureAlertConfigB
                try {
                    log.info("Enviando email a: {}", email);
                    emailService.sendEmail(
-                       email,
-                       "⚠️ Alerta de temperatura",
-                       "La temperatura actual (" + currentTemperature + "°C) superó el límite configurado (" + threshold + "°C)."
-                   );
+                        email,
+                        "⚠️ Alerta de temperatura - Orden " + detail.getOrder().getNumber(),
+                        String.format(
+                            """
+                            *ALERTA DE TEMPERATURA*
+
+                            Se ha detectado que la temperatura actual ha superado el límite configurado.
+
+                            *Detalles de la orden:*
+                            - Número de orden: %s
+                            - Fecha y hora del evento: %s
+
+                            *Lectura registrada:*
+                            - Temperatura actual: %.2f °C
+                            - Umbral configurado: %.2f °C
+
+                            --
+                            Sistema de Alarma TruckTeck
+                            """,
+                            detail.getOrder().getNumber(),
+                            detail.getTimestamp().toString(),
+                            detail.getTemperature(),
+                            threshold
+                        )
+                    );
                    log.info("Email de alerta enviado exitosamente a {}", email);
                } catch (Exception e) {
                    log.error("Error al enviar email a {}: {}", email, e.getMessage(), e);
@@ -156,13 +174,12 @@ public class TemperatureAlertConfigBusiness  implements ITemperatureAlertConfigB
 
             // Evitar el spam
             log.info("Marcando alerta enviada como true para evitar spam");
-            config.setEmailAlreadySent(true);
             repository.save(config);
 
             return true; // alerta enviada
         }
 
-        log.debug("Temperatura {} no superó el threshold {}", currentTemperature, threshold);
+        log.debug("Temperatura {} no superó el threshold {}", detail.getTemperature(), threshold);
         return false; // no superó el umbral
     }
 }
