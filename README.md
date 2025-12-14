@@ -47,58 +47,41 @@ Antes de comenzar, asegúrate de tener lo siguiente instalado:
 
 En el archivo `application.properties`, configura la conexión a tu base de datos MySQL. Hay ejemplos para diferentes entornos locales:
 
-```properties```
 # Ejemplo para Agus
-spring.datasource.url=jdbc:mysql://localhost:3306/iw3_db?createDatabaseIfNotExist=true&verifyServerCertificate=false&useSSL=false&allowPublicKeyRetrieval=true
+```spring.datasource.url=jdbc:mysql://localhost:3306/iw3_db?createDatabaseIfNotExist=true&verifyServerCertificate=false&useSSL=false&allowPublicKeyRetrieval=true```
+```spring.datasource.username='tu_usuario_bd'```
+```spring.datasource.password='tu_clave_bd'```
 
-# Ejemplo para Tobias
-spring.datasource.url=jdbc:mysql://localhost:3307/trucktek?createDatabaseIfNotExist=true&verifyServerCertificate=false&useSSL=false&allowPublicKeyRetrieval=true
 
-# Ejemplo para Zeta
-spring.datasource.url=jdbc:mysql://localhost:3306/TruckTek?createDatabaseIfNotExist=true&verifyServerCertificate=false&useSSL=false&allowPublicKeyRetrieval=true
-
-spring.datasource.username='tu_usuario_bd'
-spring.datasource.password='tu_clave_bd'
 
 **Nota**: Asegúrate de ajustar los valores de username y password según tu configuración.
 
 ## Configuración de Correos
 El proyecto utiliza un servidor SMTP para el envío de correos. Configura las credenciales en el archivo application.properties:
-spring.mail.host=smtp.gmail.com
-spring.mail.port=587
-spring.mail.username=${MAIL_USERNAME}
-spring.mail.password=${MAIL_PASSWORD}
-spring.mail.properties.mail.smtp.auth=true
-spring.mail.properties.mail.smtp.starttls.enable=true
+```spring.mail.host=smtp.gmail.com```
+```spring.mail.port=587```
+```spring.mail.username=${MAIL_USERNAME}```
+```spring.mail.password=${MAIL_PASSWORD}```
+```spring.mail.properties.mail.smtp.auth=true```
+```spring.mail.properties.mail.smtp.starttls.enable=true```
 
 **Nota**: Crea un archivo .env en la raíz del proyecto para definir las variables de entorno MAIL_USERNAME y MAIL_PASSWORD.
-
-## Colores Corporativos
-Los colores corporativos para los PDFs se configuran en formato RGB:
-pdf.color.primary.r=33
-pdf.color.primary.g=150
-pdf.color.primary.b=243
-pdf.color.secondary.r=52
-pdf.color.secondary.g=73
-pdf.color.secondary.b=94
-
-Puedes personalizarlos según los requerimientos de tu empresa.
 
 ## Ejecución del Proyecto
 
 - 1. Clona el repositorio:
-git clone https://github.com/tu-usuario/truckteck.git
-cd truckteck
+```git clone https://github.com/tu-usuario/truckteck.git```
+```cd truckteck```
 
 - 2. Configura las variables de entorno en un archivo .env (opcional).
 - 3. Ejecuta el proyecto con Maven: 
-mvn spring-boot:run
+```mvn spring-boot:run```
 
 - 4. Accede a la aplicación en tu navegador:
-http://localhost:8080
+```http://localhost:8080```
 
 ## Estructura del Proyecto
-
+```
 TruckTeck/
 ├── src/
 │   ├── main/
@@ -106,15 +89,15 @@ TruckTeck/
 │   │   │   └── ar/
 │   │   │       └── edu/               # Código fuente de la aplicación
 │   │   ├── resources/
-│   │       ├── application.properties # Configuración principal
-│   │       ├── application-mysqlprod.properties
-│   │       ├── mio.txt
-│   │       └── static/
-│   │           └── TruckTeck.png      # Logo de la empresa
+│   │   │   ├── application.properties # Configuración principal
+│   │   │   ├── application-mysqlprod.properties
+│   │   │   ├── mio.txt
+│   │   │   └── static/
+│   │   │       └── TruckTeck.png      # Logo de la empresa
 │   ├── test/
-│       ├── java/
-│           └── ar/
-│               └── edu/               # Pruebas unitarias
+│   │   └── java/
+│   │       └── ar/
+│   │           └── edu/               # Pruebas unitarias
 ├── target/
 │   ├── classes/                       # Archivos compilados
 │   ├── generated-sources/
@@ -124,8 +107,9 @@ TruckTeck/
 │   ├── TMS_INTEGRATION_GUIDE.md
 │   ├── TMS_README.md
 │   └── TMS_REFACTORING_SUMMARY.md
-├── [pom.xml](http://_vscodecontentref_/1)                            # Archivo de configuración de Maven
-└── [README.md](http://_vscodecontentref_/2)                          # Documentación del proyecto
+├── pom.xml                            # Archivo de configuración de Maven
+└── README.md                          # Documentación del proyecto
+```
 
 ## Contribuciones
 ¡Las contribuciones son bienvenidas! Si deseas colaborar:
