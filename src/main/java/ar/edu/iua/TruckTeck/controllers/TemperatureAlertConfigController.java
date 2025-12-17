@@ -64,7 +64,7 @@ public class TemperatureAlertConfigController {
      * @return {@code 200 OK} con la configuración actualizada,
      *         o {@code 404 Not Found} si la configuración no existe.
      */
-    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(operationId = "update-alarm-config", summary = "Actualiza la configuración de alerta de temperatura.")
     @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Configuración a actualizar", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = TemperatureAlertConfig.class)))
     @ApiResponses(value = {
@@ -95,7 +95,7 @@ public class TemperatureAlertConfigController {
      * @return {@code 200 OK} si la bandera fue reseteada correctamente,
      *         o {@code 404 Not Found} si no se encuentra la configuración.
      */
-    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(operationId = "reset-alarm-email-flag", summary = "Resetea la flag de envío de correo (emailAlreadySent).")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "La flag fue reseteada correctamente.", content = @Content(mediaType = "application/json", schema = @Schema(implementation = StandardResponse.class))),
@@ -136,7 +136,7 @@ public class TemperatureAlertConfigController {
      * @return {@code 201 Created} con la cabecera {@code Location} apuntando al recurso creado,
      *         o {@code 404 Not Found} si la operación no puede completarse.
      */
-    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(operationId = "create-first-alarm-config", summary = "Crea la primera configuración del sistema.")
     @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Configuración inicial a registrar", required = true, content = @Content(mediaType = "application/json", schema = @Schema(implementation = TemperatureAlertConfig.class)))
     @ApiResponses(value = {
@@ -170,7 +170,7 @@ public class TemperatureAlertConfigController {
      * @return {@code 200 OK} con un array de objetos {@link ar.edu.iua.TruckTeck.model.Alarm},
      *         o {@code 500 Internal Server Error} si ocurre un error durante la consulta.
      */
-    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(operationId = "list-all-alarms", summary = "Obtiene todas las alarmas de temperatura del sistema.")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Devuelve la lista de todas las alarmas ordenadas por fecha/hora descendente.",
