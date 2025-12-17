@@ -279,7 +279,7 @@ public class OrderRestController {
         @ApiResponse(responseCode = "404", description = "Orden no encontrada o no finalizada", content = @Content(mediaType = "application/json", schema = @Schema(implementation = StandardResponse.class))),
         @ApiResponse(responseCode = "500", description = "Error interno", content = @Content(mediaType = "application/json", schema = @Schema(implementation = StandardResponse.class)))
     })
-    @GetMapping(value = "/number/{number}/conciliation/pdf", produces = MediaType.APPLICATION_PDF_VALUE)
+    @GetMapping(value = "/number/{number}/conciliation/pdf")
     public ResponseEntity<?> downloadConciliationPdf(@PathVariable String number) {
         try {
             byte[] pdfBytes = orderBusiness.generateConciliationPdf(number);
