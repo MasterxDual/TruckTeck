@@ -174,7 +174,9 @@ public class SecurityConfiguration {
         config.setAllowedOrigins(List.of(
 			"http://localhost:5173",
 			"http://localhost:5500",
-			"http://localhost:5174"
+			"http://localhost:5174",
+			"https://truckteck.mooo.com",
+			"https://iw3y2025.mooo.com"
 		));
 
         // Métodos HTTP permitidos en las solicitudes al backend
