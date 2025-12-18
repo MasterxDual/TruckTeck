@@ -170,7 +170,7 @@ public class TemperatureAlertConfigController {
      * @return {@code 200 OK} con un array de objetos {@link ar.edu.iua.TruckTeck.model.Alarm},
      *         o {@code 500 Internal Server Error} si ocurre un error durante la consulta.
      */
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
     @Operation(operationId = "list-all-alarms", summary = "Obtiene todas las alarmas de temperatura del sistema.")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Devuelve la lista de todas las alarmas ordenadas por fecha/hora descendente.",
