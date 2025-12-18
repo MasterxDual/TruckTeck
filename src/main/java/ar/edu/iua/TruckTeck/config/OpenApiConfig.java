@@ -29,8 +29,8 @@ public class OpenApiConfig {
    @Bean
    public OpenAPI openApi() {
        String contributors = "Contributors:\n" +
-           "- MasterxDual (https://github.com/MasterxDual, agustinbram@gmail.com)\n" +
-           "- TOB1EH (https://github.com/TOB1EH, tobiasfunes@hotmail.com)\n" +
+           "- MasterxDual (https://github.com/agusbram, agustinbram@gmail.com)\n" +
+           "- TOB1EH (https://github.com/TOB1EH, tobiasfunes@hotmail.com.ar)\n" +
            "- GastZeta (https://github.com/GastZeta, gzaragosi@gmail.com)\n";
 
        return new OpenAPI()
@@ -38,8 +38,7 @@ public class OpenApiConfig {
                .title("TruckTeck - Ing Web 3")
                .description("API Backend - Ing Web 3\n\n" + contributors)
                .version("v1.0")
-               .termsOfService("TOC")
-               .license(new License().name("License").url("#"))
+               .license(new License().name("License").url("https://github.com/agusbram/TruckTeck-Backend"))
            );
    }
 }
